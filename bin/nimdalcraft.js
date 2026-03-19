@@ -72,6 +72,10 @@ function codexHome() {
   return process.env.CODEX_HOME || path.join(os.homedir(), ".codex");
 }
 
+function claudeHome() {
+  return process.env.CLAUDE_HOME || path.join(os.homedir(), ".claude");
+}
+
 function installCodexSkill() {
   const destination = path.join(codexHome(), "skills", "nimdalcraft");
   fs.rmSync(destination, { recursive: true, force: true });
@@ -84,6 +88,34 @@ function installCodexSkill() {
       return !["work", "__pycache__", "tmp-state.json", "tmp-state.out.json", "tmp-state.live.json"].includes(name);
     }
   });
+  return destination;
+}
+
+function claudeCommandContents() {
+  return `---
+description: Turn an app idea into a nimdalcraft starter package
+argument-hint: [product idea]
+---
+
+Use the nimdalcraft workflow for this idea:
+
+$ARGUMENTS
+
+Rules:
+- Keep the normal Claude Code flow intact.
+- Treat the argument text as the product idea to structure.
+- Prefer a beginner-friendly SaaS MVP stack unless the user asks otherwise.
+- If the nimdalcraft CLI is available, prefer running \`npx nimdalcraft "$ARGUMENTS"\` or \`nimdalcraft "$ARGUMENTS"\` and summarize the generated \`STARTER_README.md\`, \`DECISION_LOG.md\`, and \`NEXT_ACTION.md\`.
+- If the CLI is not available, still apply the same nimdalcraft workflow manually: spec, architecture, OSS search/curation, starter plan, and runnable or handoff guidance.
+- Keep the final answer focused on one startable stack by default.
+`;
+}
+
+function installClaudeCommand() {
+  const commandsDir = path.join(claudeHome(), "commands");
+  const destination = path.join(commandsDir, "nimdalcraft.md");
+  fs.mkdirSync(commandsDir, { recursive: true });
+  fs.writeFileSync(destination, claudeCommandContents(), "utf8");
   return destination;
 }
 
@@ -112,6 +144,7 @@ function doctor() {
     ["git", commandExists("git") ? "ok" : "missing"],
     ["GITHUB_TOKEN", process.env.GITHUB_TOKEN ? "set" : "missing"],
     ["CODEX_HOME", codexHome()],
+    ["CLAUDE_HOME", claudeHome()],
     ["skill_dir", skillDir]
   ];
   log("Nimdalcraft Doctor");
@@ -124,20 +157,36 @@ function doctor() {
 function initCommand() {
   doctor();
   log("");
-  const destination = installCodexSkill();
-  log(`Installed Codex skill to: ${destination}`);
+  const codexDestination = installCodexSkill();
+  const claudeDestination = installClaudeCommand();
+  log(`Installed Codex skill to: ${codexDestination}`);
+  log(`Installed Claude Code command to: ${claudeDestination}`);
   log("");
   log("Next:");
   log("1. Run `npx nimdalcraft \"your idea\"`");
-  log("2. In Codex, use `Use $nimdalcraft to turn this idea into a runnable starter package.`");
+  log("2. In Codex, use `$nimdalcraft your idea`");
+  log("3. In Claude Code, use `/nimdalcraft your idea`");
 }
 
 function installCommand(target) {
-  if (target !== "codex") {
-    fail("Only `nimdalcraft install codex` is supported right now.");
+  if (!target || target === "all") {
+    const codexDestination = installCodexSkill();
+    const claudeDestination = installClaudeCommand();
+    log(`Installed Codex skill to: ${codexDestination}`);
+    log(`Installed Claude Code command to: ${claudeDestination}`);
+    return;
   }
-  const destination = installCodexSkill();
-  log(`Installed Codex skill to: ${destination}`);
+  if (target === "codex") {
+    const destination = installCodexSkill();
+    log(`Installed Codex skill to: ${destination}`);
+    return;
+  }
+  if (target === "claude") {
+    const destination = installClaudeCommand();
+    log(`Installed Claude Code command to: ${destination}`);
+    return;
+  }
+  fail("Supported targets: `codex`, `claude`, `all`.");
 }
 
 function runCommand(args) {
@@ -182,6 +231,8 @@ function help() {
   log("  nimdalcraft init");
   log("  nimdalcraft doctor");
   log("  nimdalcraft install codex");
+  log("  nimdalcraft install claude");
+  log("  nimdalcraft install all");
   log("  nimdalcraft \"your idea\"");
   log("  nimdalcraft run \"your idea\" [flags]");
   log("  nimdalcraft validate [flags]");

@@ -40,13 +40,19 @@ skills/nimdalcraft/                       Main skill package
 Keep the normal vibe-coding flow:
 
 1. Open Codex or Claude Code first
-2. Use `$nimdalcraft` inside that session
+2. Use `$nimdalcraft` in Codex or `/nimdalcraft` in Claude Code
 3. Use the CLI only for one-time setup or maintenance
 
 Inside Codex:
 
 ```text
-Use $nimdalcraft to turn this idea into a runnable starter package: B2B client portal SaaS with auth and uploads
+$nimdalcraft B2B client portal SaaS with auth and uploads
+```
+
+Inside Claude Code:
+
+```text
+/nimdalcraft B2B client portal SaaS with auth and uploads
 ```
 
 ## Quick Start
@@ -101,18 +107,26 @@ nimdalcraft "B2B client portal SaaS"
 
 ### 2. Codex skill install
 
-`init` installs the bundled Codex skill into your Codex home.
+`init` installs the bundled Codex skill and Claude Code slash command into your home directories.
 
 Direct command:
 
 ```powershell
 npx nimdalcraft install codex
+npx nimdalcraft install claude
+npx nimdalcraft install all
 ```
 
 Then inside Codex you can use:
 
 ```text
-Use $nimdalcraft to turn this idea into a runnable starter package.
+$nimdalcraft your idea
+```
+
+Inside Claude Code you can use:
+
+```text
+/nimdalcraft your idea
 ```
 
 ## Recommended Usage Modes
