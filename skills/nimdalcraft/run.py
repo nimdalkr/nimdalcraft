@@ -233,11 +233,67 @@ def short_reason(candidate: dict[str, Any]) -> str:
     return f"deterministic score {candidate.get('overall_score')}"
 
 
-def curate_candidates(candidates: list[dict[str, Any]], result_mode: str) -> list[dict[str, Any]]:
+def feature_fit_reasons(component: str, spec: dict[str, Any]) -> tuple[list[str], list[str]]:
+    component_lower = component.lower()
+    features = {str(item).lower() for item in (spec.get("core_features") or [])}
+    fit: list[str] = []
+    gaps: list[str] = []
+
+    if "frontend" in component_lower or "next.js" in component_lower or "react" in component_lower:
+        fit.append("gives a dashboard shell for keyword lists, content planning, and memo screens")
+        if "authentication" in features:
+            fit.append("reduces time to add sign-in and protected user pages")
+        gaps.append("still needs Naver-blogger-specific workflow screens and labels")
+
+    if "backend" in component_lower:
+        fit.append("fits CRUD APIs for keywords, post ideas, calendars, checklists, and performance notes")
+        fit.append("keeps the first MVP API simple enough for a beginner builder")
+        gaps.append("does not include Naver publishing or analytics integrations by default")
+
+    if "orm" in component_lower or "database" in component_lower:
+        fit.append("fits relational data for keyword banks, content plans, task checklists, and result notes")
+        gaps.append("does not provide domain analytics logic on its own")
+
+    if "auth" in component_lower:
+        fit.append("helps support multi-user blogger accounts and protected workspaces")
+        gaps.append("does not model Naver-specific permissions by itself")
+
+    if "storage" in component_lower:
+        fit.append("can support image or file attachments for content planning workflows")
+        gaps.append("does not include Naver media sync by default")
+
+    if "worker" in component_lower:
+        fit.append("can support scheduled reminders or background content tasks later")
+        gaps.append("is optional for the first manual MVP")
+
+    if not fit:
+        fit.append("supports the general SaaS MVP foundation needed for this idea")
+    if not gaps:
+        gaps.append("still needs Naver-blogger-specific features to be implemented on top")
+    return fit[:2], gaps[:2]
+
+
+def failure_mode_explanation(execution: dict[str, Any]) -> str:
+    mode = str(execution.get("failure_mode") or "")
+    if mode == "degraded_search":
+        return "Results were generated from live search, but not under strict high-confidence search conditions."
+    if mode == "low_confidence":
+        return "A stack was selected, but one or more choices did not clear the highest confidence bar."
+    if mode == "low_coverage":
+        return "The validated starter pool is too small to guarantee a stable runnable recommendation."
+    if mode == "runnable_failed":
+        return "A starter was selected, but runnable validation did not pass."
+    if mode == "no_candidates":
+        return "No surviving candidates matched the minimum filtering and scoring thresholds."
+    return "No failure mode was triggered."
+
+
+def curate_candidates(candidates: list[dict[str, Any]], result_mode: str, spec: dict[str, Any]) -> list[dict[str, Any]]:
     grouped = group_by_component(candidates)
     curated = []
     for component, items in grouped.items():
         selected = items[0]
+        fit_reasons, gap_reasons = feature_fit_reasons(component, spec)
         entry = {
             "component": component,
             "selected": {
@@ -247,6 +303,8 @@ def curate_candidates(candidates: list[dict[str, Any]], result_mode: str) -> lis
                 "confidence": selected.get("confidence"),
                 "score": selected.get("overall_score"),
                 "why_selected": [short_reason(selected), f"overall score {selected.get('overall_score')}"],
+                "recommended_for_features": fit_reasons,
+                "not_covered_yet": gap_reasons,
                 "risks": (selected.get("complexity_signals") or []) + (selected.get("maintenance_flags") or []),
             },
             "alternatives": [],
@@ -421,7 +479,7 @@ def build_starter_plan(state: dict[str, Any], trusted_starter: dict[str, Any] | 
     if has_worker:
         integration_order.append("Introduce the background worker after synchronous flows are stable.")
     summary_lines = [
-        f"- {item.get('component')}: {(item.get('selected') or {}).get('name')} ({(item.get('selected') or {}).get('source_type')})"
+        f"- {item.get('component')}: {(item.get('selected') or {}).get('name')} ({(item.get('selected') or {}).get('source_type')}) -> {(((item.get('selected') or {}).get('recommended_for_features')) or ['general SaaS MVP support'])[0]}"
         for item in curated
     ]
     if trusted_starter:
@@ -509,6 +567,8 @@ def build_decision_log(state: dict[str, Any], result_mode: str) -> str:
         lines.append("Why:")
         lines.append(f"- {short_reason(candidate) if candidate else 'best surviving candidate'}")
         lines.append(f"- confidence {str(selected.get('confidence') or '').title()}")
+        for reason in (selected.get("recommended_for_features") or [])[:2]:
+            lines.append(f"- fit: {reason}")
         lines.append("Rejected:")
         rejected_lines = []
         if result_mode == "explore":
@@ -599,6 +659,10 @@ def build_readme(state: dict[str, Any], result_mode: str, trusted_starter: dict[
         f"- FLAKY: `{validation_summary.get('flaky') or 0}`",
         f"- BROKEN: `{validation_summary.get('broken') or 0}`",
         "",
+        "## Status Meaning",
+        "",
+        failure_mode_explanation(execution),
+        "",
         "## Idea",
         "",
         str(state.get("input", {}).get("idea", "")),
@@ -616,6 +680,17 @@ def build_readme(state: dict[str, Any], result_mode: str, trusted_starter: dict[
         lines.append(
             f"| {component} | {selected.get('name','')} | {selected.get('source_type','')} | {chosen.get('overall_score','')} | {selected.get('confidence','')} | {selected.get('url','')} |"
         )
+    lines.extend(["", "## Why These Picks Fit", ""])
+    for item in state.get("curated_choices") or []:
+        selected = item.get("selected") or {}
+        lines.append(f"### {item.get('component')}: {selected.get('name')}")
+        lines.append("Recommended for:")
+        for reason in (selected.get("recommended_for_features") or [])[:2]:
+            lines.append(f"- {reason}")
+        lines.append("Not covered yet:")
+        for reason in (selected.get("not_covered_yet") or [])[:2]:
+            lines.append(f"- {reason}")
+        lines.append("")
     if trusted_starter:
         lines.extend(
             [
@@ -942,7 +1017,7 @@ def main() -> int:
     search_report = state["reports"]["search"]
     state["execution"]["search_quality"] = search_report["search_quality"]
     state["execution"]["data_freshness"] = search_report["data_freshness"]
-    state["curated_choices"] = curate_candidates(candidates, args.result_mode)
+    state["curated_choices"] = curate_candidates(candidates, args.result_mode, state.get("spec") or {})
 
     trusted_starter = forced_starter or find_trusted_starter(candidates, trusted_starters)
     runnable_report = state["reports"].get("runnable") or {}
