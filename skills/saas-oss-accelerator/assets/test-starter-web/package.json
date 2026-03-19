@@ -1,0 +1,8 @@
+{
+  "name": "local-web-starter",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log('local web starter')\""
+  }
+}

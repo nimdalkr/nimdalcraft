@@ -1,0 +1,526 @@
+[
+  {
+    "id": "saas-boilerplate",
+    "label": "SaaS Boilerplate",
+    "repo": "https://github.com/ixartz/SaaS-Boilerplate",
+    "status": "broken",
+    "verified_env": {
+      "node": "v22.18.0",
+      "python": "3.13.12",
+      "os": "windows"
+    },
+    "install_command": "npm install",
+    "run_command": "npm run dev",
+    "expected_output": "http://localhost:3000",
+    "tested_commands": [
+      "git clone https://github.com/ixartz/SaaS-Boilerplate.git app",
+      "Set-Location app",
+      "npm install",
+      "Copy-Item .env.example .env.local",
+      "npm run dev"
+    ],
+    "env_template": {
+      "NEXT_PUBLIC_APP_URL": "http://localhost:3000"
+    },
+    "known_issues": [
+      "Third-party auth and payment providers still require real credentials.",
+      "Review optional services before enabling production-only integrations."
+    ],
+    "expected_entrypoint": "npm run dev",
+    "last_verified_at": "2026-03-19",
+    "last_validation": {
+      "checked_at": "2026-03-19",
+      "outcome": "partial_success",
+      "runnable_status": "fail",
+      "final_result": "unusable",
+      "detail": {
+        "clone": {
+          "status": "pass",
+          "command": "git clone https://github.com/ixartz/SaaS-Boilerplate C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\work\\starter-validation-batch-3\\saas-boilerplate\\project\\app",
+          "fallback_used": false,
+          "output": "Cloning into 'C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\work\\starter-validation-batch-3\\saas-boilerplate\\project\\app'...",
+          "return_code": 0
+        },
+        "install": {
+          "status": "fail",
+          "command": "npm install --ignore-scripts",
+          "fallback_used": true,
+          "output": "[WinError 2] 지정된 파일을 찾을 수 없습니다",
+          "return_code": -1
+        },
+        "env": {
+          "status": "pass",
+          "command": "env-check",
+          "fallback_used": false,
+          "output": ".env.example generated from whitelist template",
+          "return_code": 0
+        },
+        "run": {
+          "status": "fail",
+          "command": "npm run dev",
+          "fallback_used": false,
+          "output": "[WinError 2] 지정된 파일을 찾을 수 없습니다",
+          "return_code": -1
+        }
+      }
+    },
+    "validation_history": [
+      {
+        "time": "2026-03-19T00:00:00+00:00",
+        "status": "fail",
+        "final_result": "unusable",
+        "runnable_status": "fail"
+      },
+      {
+        "time": "2026-03-19T05:30:46+00:00",
+        "status": "fail",
+        "final_result": "unusable",
+        "runnable_status": "fail"
+      },
+      {
+        "time": "2026-03-19T05:31:41+00:00",
+        "status": "fail",
+        "final_result": "unusable",
+        "runnable_status": "fail"
+      },
+      {
+        "time": "2026-03-19T06:39:22+00:00",
+        "status": "fail",
+        "final_result": "unusable",
+        "runnable_status": "fail"
+      }
+    ]
+  },
+  {
+    "id": "fastapi-full-stack",
+    "label": "FastAPI Full Stack Template",
+    "repo": "https://github.com/fastapi/full-stack-fastapi-template",
+    "status": "broken",
+    "verified_env": {
+      "node": "v22.18.0",
+      "python": "3.13.12",
+      "os": "windows"
+    },
+    "install_command": "docker compose up --build",
+    "run_command": "docker compose up --build",
+    "expected_output": "api responds on configured domain",
+    "tested_commands": [
+      "git clone https://github.com/fastapi/full-stack-fastapi-template.git app",
+      "Set-Location app",
+      "Copy-Item .env.example .env",
+      "docker compose up --build"
+    ],
+    "env_template": {
+      "DOMAIN": "localhost",
+      "STACK_NAME": "saas-template"
+    },
+    "known_issues": [
+      "Docker is required for the default local workflow.",
+      "This starter is more operationally heavy than the Next.js boilerplate."
+    ],
+    "expected_entrypoint": "docker compose up --build",
+    "last_verified_at": "2026-03-19",
+    "last_validation": {
+      "checked_at": "2026-03-19",
+      "outcome": "partial_success",
+      "runnable_status": "fail",
+      "final_result": "unusable",
+      "detail": {
+        "clone": {
+          "status": "pass",
+          "command": "git clone https://github.com/fastapi/full-stack-fastapi-template C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\work\\starter-validation-batch-3\\fastapi-full-stack\\project\\app",
+          "fallback_used": false,
+          "output": "Cloning into 'C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\work\\starter-validation-batch-3\\fastapi-full-stack\\project\\app'...",
+          "return_code": 0
+        },
+        "install": {
+          "status": "fail",
+          "command": "npm install --ignore-scripts",
+          "fallback_used": true,
+          "output": "[WinError 2] 지정된 파일을 찾을 수 없습니다",
+          "return_code": -1
+        },
+        "env": {
+          "status": "pass",
+          "command": "env-check",
+          "fallback_used": false,
+          "output": ".env.example generated from whitelist template",
+          "return_code": 0
+        },
+        "run": {
+          "status": "fail",
+          "command": "docker compose up --build",
+          "fallback_used": false,
+          "output": "time=\"2026-03-19T15:39:24+09:00\" level=warning msg=\"The \\\"CI\\\" variable is not set. Defaulting to a blank string.\"\nerror during connect: in the default daemon configuration on Windows, the docker client must be run with elevated privileges to connect: Get \"http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.24/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dapp%22%3Atrue%7D%7D\": open //./pipe/docker_engine: The system cannot find the file specified.",
+          "return_code": 1
+        }
+      }
+    },
+    "validation_history": [
+      {
+        "time": "2026-03-19T00:00:00+00:00",
+        "status": "fail",
+        "final_result": "unusable",
+        "runnable_status": "fail"
+      },
+      {
+        "time": "2026-03-19T05:30:46+00:00",
+        "status": "fail",
+        "final_result": "unusable",
+        "runnable_status": "fail"
+      },
+      {
+        "time": "2026-03-19T05:31:43+00:00",
+        "status": "fail",
+        "final_result": "unusable",
+        "runnable_status": "fail"
+      },
+      {
+        "time": "2026-03-19T06:39:24+00:00",
+        "status": "fail",
+        "final_result": "unusable",
+        "runnable_status": "fail"
+      }
+    ]
+  },
+  {
+    "id": "local-test-starter",
+    "label": "Local Test Starter",
+    "repo": "./assets/test-starter",
+    "status": "verified",
+    "verified_env": {
+      "node": "v22.18.0",
+      "python": "3.13.12",
+      "os": "windows"
+    },
+    "install_command": "python -m pip install --dry-run -r requirements.txt",
+    "run_command": "python run_check.py",
+    "expected_output": "LOCAL_TEST_STARTER_OK",
+    "tested_commands": [
+      "copy local fixture into app",
+      "npm install",
+      "copy .env.example .env.local"
+    ],
+    "env_template": {
+      "APP_NAME": "local-test-starter"
+    },
+    "validation_install_commands": [
+      "python -m pip install --dry-run -r requirements.txt"
+    ],
+    "known_issues": [
+      "This starter is for local validation only."
+    ],
+    "expected_entrypoint": "npm install",
+    "last_verified_at": "2026-03-19",
+    "last_validation": {
+      "checked_at": "2026-03-19",
+      "outcome": "success",
+      "runnable_status": "pass",
+      "final_result": "usable",
+      "detail": {
+        "clone": {
+          "status": "pass",
+          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\assets\\test-starter",
+          "fallback_used": false,
+          "output": "",
+          "return_code": 0
+        },
+        "install": {
+          "status": "pass",
+          "command": "python -m pip install --dry-run -r requirements.txt",
+          "fallback_used": false,
+          "output": "Defaulting to user installation because normal site-packages is not writeable\n[notice] A new release of pip is available: 25.3 -> 26.0.1\n[notice] To update, run: C:\\Users\\Admin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe -m pip install --upgrade pip",
+          "return_code": 0
+        },
+        "env": {
+          "status": "pass",
+          "command": "env-check",
+          "fallback_used": false,
+          "output": ".env.example exists",
+          "return_code": 0
+        },
+        "run": {
+          "status": "pass",
+          "command": "python run_check.py",
+          "fallback_used": false,
+          "output": "LOCAL_TEST_STARTER_OK",
+          "return_code": 0
+        }
+      }
+    },
+    "validation_history": [
+      {
+        "time": "2026-03-19T00:00:00+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T05:30:36+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T05:30:47+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T05:31:44+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T06:39:25+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      }
+    ]
+  },
+  {
+    "id": "local-web-starter",
+    "label": "Local Web Starter",
+    "repo": "./assets/test-starter-web",
+    "status": "verified",
+    "verified_env": {
+      "node": "v22.18.0",
+      "python": "3.13.12",
+      "os": "windows"
+    },
+    "install_command": "python -m pip install --dry-run -r requirements.txt",
+    "run_command": "python run_check.py",
+    "expected_output": "LOCAL_WEB_STARTER_OK",
+    "tested_commands": [
+      "copy local fixture into app",
+      "python -m pip install --dry-run -r requirements.txt",
+      "python run_check.py"
+    ],
+    "env_template": {
+      "APP_NAME": "local-web-starter"
+    },
+    "validation_install_commands": [
+      "python -m pip install --dry-run -r requirements.txt"
+    ],
+    "known_issues": [
+      "This starter is for validated-set coverage testing."
+    ],
+    "expected_entrypoint": "python run_check.py",
+    "last_verified_at": "2026-03-19",
+    "last_validation": {
+      "checked_at": "2026-03-19",
+      "outcome": "success",
+      "runnable_status": "pass",
+      "final_result": "usable",
+      "detail": {
+        "clone": {
+          "status": "pass",
+          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\assets\\test-starter-web",
+          "fallback_used": false,
+          "output": "",
+          "return_code": 0
+        },
+        "install": {
+          "status": "pass",
+          "command": "python -m pip install --dry-run -r requirements.txt",
+          "fallback_used": false,
+          "output": "Defaulting to user installation because normal site-packages is not writeable\n[notice] A new release of pip is available: 25.3 -> 26.0.1\n[notice] To update, run: C:\\Users\\Admin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe -m pip install --upgrade pip",
+          "return_code": 0
+        },
+        "env": {
+          "status": "pass",
+          "command": "env-check",
+          "fallback_used": false,
+          "output": ".env.example exists",
+          "return_code": 0
+        },
+        "run": {
+          "status": "pass",
+          "command": "python run_check.py",
+          "fallback_used": false,
+          "output": "LOCAL_WEB_STARTER_OK",
+          "return_code": 0
+        }
+      }
+    },
+    "validation_history": [
+      {
+        "time": "2026-03-19T00:00:00+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T06:39:26+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      }
+    ]
+  },
+  {
+    "id": "local-api-starter",
+    "label": "Local API Starter",
+    "repo": "./assets/test-starter-api",
+    "status": "verified",
+    "verified_env": {
+      "node": "v22.18.0",
+      "python": "3.13.12",
+      "os": "windows"
+    },
+    "install_command": "python -m pip install --dry-run -r requirements.txt",
+    "run_command": "python run_check.py",
+    "expected_output": "LOCAL_API_STARTER_OK",
+    "tested_commands": [
+      "copy local fixture into app",
+      "python -m pip install --dry-run -r requirements.txt",
+      "python run_check.py"
+    ],
+    "env_template": {
+      "APP_NAME": "local-api-starter"
+    },
+    "validation_install_commands": [
+      "python -m pip install --dry-run -r requirements.txt"
+    ],
+    "known_issues": [
+      "This starter is for validated-set coverage testing."
+    ],
+    "expected_entrypoint": "python run_check.py",
+    "last_verified_at": "2026-03-19",
+    "last_validation": {
+      "checked_at": "2026-03-19",
+      "outcome": "success",
+      "runnable_status": "pass",
+      "final_result": "usable",
+      "detail": {
+        "clone": {
+          "status": "pass",
+          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\assets\\test-starter-api",
+          "fallback_used": false,
+          "output": "",
+          "return_code": 0
+        },
+        "install": {
+          "status": "pass",
+          "command": "python -m pip install --dry-run -r requirements.txt",
+          "fallback_used": false,
+          "output": "Defaulting to user installation because normal site-packages is not writeable\n[notice] A new release of pip is available: 25.3 -> 26.0.1\n[notice] To update, run: C:\\Users\\Admin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe -m pip install --upgrade pip",
+          "return_code": 0
+        },
+        "env": {
+          "status": "pass",
+          "command": "env-check",
+          "fallback_used": false,
+          "output": ".env.example exists",
+          "return_code": 0
+        },
+        "run": {
+          "status": "pass",
+          "command": "python run_check.py",
+          "fallback_used": false,
+          "output": "LOCAL_API_STARTER_OK",
+          "return_code": 0
+        }
+      }
+    },
+    "validation_history": [
+      {
+        "time": "2026-03-19T00:00:00+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T06:39:27+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      }
+    ]
+  },
+  {
+    "id": "local-flaky-starter",
+    "label": "Local Flaky Starter",
+    "repo": "./assets/test-starter-flaky",
+    "status": "flaky",
+    "status_policy": "keep_flaky",
+    "validation_mode": "keep_flaky",
+    "verified_env": {
+      "node": "v22.18.0",
+      "python": "3.13.12",
+      "os": "windows"
+    },
+    "install_command": "python -m pip install --dry-run -r requirements.txt",
+    "run_command": "python run_check.py",
+    "expected_output": "LOCAL_FLAKY_STARTER_OK",
+    "tested_commands": [
+      "copy local fixture into app",
+      "python -m pip install --dry-run -r requirements.txt",
+      "python run_check.py"
+    ],
+    "env_template": {
+      "APP_NAME": "local-flaky-starter"
+    },
+    "validation_install_commands": [
+      "python -m pip install --dry-run -r requirements.txt"
+    ],
+    "known_issues": [
+      "This starter intentionally stays flaky so the fallback path remains testable."
+    ],
+    "expected_entrypoint": "python run_check.py",
+    "last_verified_at": "2026-03-19",
+    "last_validation": {
+      "checked_at": "2026-03-19",
+      "outcome": "partial_success",
+      "runnable_status": "pass",
+      "final_result": "unstable",
+      "detail": {
+        "clone": {
+          "status": "pass",
+          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\assets\\test-starter-flaky",
+          "fallback_used": false,
+          "output": "",
+          "return_code": 0
+        },
+        "install": {
+          "status": "pass",
+          "command": "python -m pip install --dry-run -r requirements.txt",
+          "fallback_used": false,
+          "output": "Defaulting to user installation because normal site-packages is not writeable\n[notice] A new release of pip is available: 25.3 -> 26.0.1\n[notice] To update, run: C:\\Users\\Admin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe -m pip install --upgrade pip",
+          "return_code": 0
+        },
+        "env": {
+          "status": "pass",
+          "command": "env-check",
+          "fallback_used": false,
+          "output": ".env.example exists",
+          "return_code": 0
+        },
+        "run": {
+          "status": "pass",
+          "command": "python run_check.py",
+          "fallback_used": false,
+          "output": "LOCAL_FLAKY_STARTER_OK",
+          "return_code": 0
+        }
+      }
+    },
+    "validation_history": [
+      {
+        "time": "2026-03-19T00:00:00+00:00",
+        "status": "pass",
+        "final_result": "unstable",
+        "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T06:39:28+00:00",
+        "status": "pass",
+        "final_result": "unstable",
+        "runnable_status": "pass"
+      }
+    ]
+  }
+]

@@ -1,0 +1,1 @@
+print("LOCAL_API_STARTER_OK")

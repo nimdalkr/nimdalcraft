@@ -1,0 +1,1 @@
+print("LOCAL_WEB_STARTER_OK")

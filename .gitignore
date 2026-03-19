@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+
+skills/saas-oss-accelerator/work/
+skills/saas-oss-accelerator/tmp-state.json
+skills/saas-oss-accelerator/tmp-state.out.json
+skills/saas-oss-accelerator/tmp-state.live.json

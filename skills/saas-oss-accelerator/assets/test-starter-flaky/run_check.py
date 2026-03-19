@@ -1,0 +1,1 @@
+print("LOCAL_FLAKY_STARTER_OK")

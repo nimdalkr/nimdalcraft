@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SaaS OSS Accelerator Pipeline State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "input",
+    "spec",
+    "architecture",
+    "search_map",
+    "raw_candidates",
+    "curated_choices",
+    "validation_result",
+    "starter_plan",
+    "execution",
+    "reports"
+  ],
+  "properties": {
+    "input": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "architecture": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "search_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "component",
+          "purpose",
+          "source_types",
+          "query_variants",
+          "selection_criteria"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "component": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "source_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "github",
+                "gitlab",
+                "npm",
+                "pypi",
+                "boilerplate",
+                "awesome"
+              ]
+            }
+          },
+          "query_variants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "selection_criteria": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "raw_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "curated_choices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "validation_result": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "starter_plan": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "reports": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

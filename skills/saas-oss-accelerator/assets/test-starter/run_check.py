@@ -1,0 +1,1 @@
+print("LOCAL_TEST_STARTER_OK")

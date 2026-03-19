@@ -1,0 +1,4 @@
+interface:
+  display_name: "SaaS OSS Accelerator"
+  short_description: "Turn product ideas into curated OSS SaaS starter plans"
+  default_prompt: "Use $saas-oss-accelerator to turn this SaaS idea into a curated open-source starter stack and handoff prompt."

@@ -1,0 +1,8 @@
+{
+  "name": "local-api-starter",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log('local api starter')\""
+  }
+}
