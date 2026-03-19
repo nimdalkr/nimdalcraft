@@ -31,6 +31,12 @@ python scripts/validate_starters.py --starter local-test-starter
 python scripts/validate_starters.py --all --update-status
 ```
 
+GitHub repository-search snapshots are built separately for degraded runs:
+
+```bash
+python scripts/build_github_snapshot.py
+```
+
 ## Supported Sources In V1
 
 - `github`
@@ -58,6 +64,7 @@ python scripts/source_search.py --state-in work/state.json --state-out work/stat
 - Derives `state.search_map` from `state.architecture.component_search_targets` if missing.
 - Queries each enabled source per component query.
 - Retries failed requests and falls back to cached responses when available.
+- Uses the daily GitHub snapshot first in `degraded` and `offline` modes.
 - Normalizes results into `state.raw_candidates`.
 - Applies hard filters before soft-score ranking.
 - Scores candidates for recency, maintenance, popularity, beginner fit, and relevance.
@@ -71,11 +78,12 @@ python scripts/source_search.py --state-in work/state.json --state-out work/stat
   - requires GitHub search to stay enabled
   - returns high-confidence candidates only
 - `degraded`
-  - tolerates weaker source coverage
+  - uses the daily GitHub snapshot first
+  - may fall back to live GitHub or cache when a query is missing from the snapshot
   - marks result quality down
 - `offline`
-  - reads cache only
-  - freshness will be `cached` or `stale`
+  - reads GitHub snapshot and cache only
+  - freshness will be `snapshot`, `cached`, or `stale`
 
 ## Runnable Contract
 

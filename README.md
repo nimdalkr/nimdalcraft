@@ -16,16 +16,21 @@ The current implementation lives in [skills/nimdalcraft](./skills/nimdalcraft).
 - Produces human-readable outputs such as `STARTER_README.md`, `DECISION_LOG.md`, `NEXT_ACTION.md`
 - Supports `runnable` mode with a validated starter set
 - Tracks starter reliability with `verified`, `flaky`, `broken` states
+- Uses a CI-built GitHub search snapshot so `degraded` mode is not dependent on unauthenticated live GitHub search
 
 ## Repository Layout
 
 ```text
 .github/workflows/validate-starters.yml   Daily starter validation
+.github/workflows/build-github-snapshot.yml Daily GitHub snapshot refresh
 skills/nimdalcraft/                       Main skill package
   SKILL.md                                Skill instructions
   run.py                                  Main CLI entrypoint
+  scripts/build_github_snapshot.py        GitHub snapshot builder
   scripts/source_search.py                Deterministic search layer
   scripts/validate_starters.py            Validated starter checker
+  assets/github-search-snapshots.json     Daily GitHub query snapshot
+  assets/github-snapshot-queries.json     Snapshot query set
   assets/trusted-starters.json            Validated starter set
   references/                             Agent/reference docs
 ```
@@ -145,6 +150,14 @@ $env:GITHUB_TOKEN="your-token"
 npx nimdalcraft run "Client portal SaaS" --search-mode strict
 ```
 
+### 5. Degraded snapshot-first mode
+
+This is the default no-token path. It uses the daily GitHub snapshot first, then falls back to live GitHub or cache only when needed.
+
+```powershell
+npx nimdalcraft run "Client portal SaaS" --search-mode degraded
+```
+
 ## Fast Test Guide
 
 ### Validate the code
@@ -226,6 +239,14 @@ Daily starter validation runs through:
 It refreshes:
 
 - `skills/nimdalcraft/assets/trusted-starters.json`
+
+Daily GitHub snapshot refresh runs through:
+
+- [.github/workflows/build-github-snapshot.yml](./.github/workflows/build-github-snapshot.yml)
+
+It refreshes:
+
+- `skills/nimdalcraft/assets/github-search-snapshots.json`
 
 ## Where To Read Next
 

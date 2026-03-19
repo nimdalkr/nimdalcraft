@@ -1,0 +1,25 @@
+{
+  "queries": [
+    "Next.js SaaS starter",
+    "Next.js starter template auth dashboard",
+    "React admin dashboard starter",
+    "FastAPI starter",
+    "FastAPI boilerplate",
+    "FastAPI SaaS template",
+    "PostgreSQL ORM starter",
+    "Prisma starter",
+    "SQLModel starter",
+    "NextAuth starter",
+    "better-auth starter",
+    "FastAPI auth starter",
+    "S3 upload starter",
+    "uploadthing starter",
+    "FastAPI file upload storage",
+    "Celery starter",
+    "RQ starter",
+    "BullMQ starter",
+    "OpenAI SDK starter",
+    "LangChain starter",
+    "FastAPI OpenAI template"
+  ]
+}

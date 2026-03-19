@@ -21,13 +21,17 @@ from typing import Any
 
 from pipeline_state import derive_search_map, load_state, merge_raw_candidates, save_state
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+ASSET_DIR = SCRIPT_DIR.parent / "assets"
 USER_AGENT = "nimdalcraft/0.4"
 GITHUB_API = "https://api.github.com/search/repositories"
+GITHUB_SNAPSHOT_PATH = ASSET_DIR / "github-search-snapshots.json"
 NPM_SEARCH_API = "https://registry.npmjs.org/-/v1/search"
 PYPI_SEARCH_URL = "https://pypi.org/search/"
 PYPI_JSON_URL = "https://pypi.org/pypi/{name}/json"
 DEFAULT_CACHE_TTL_SECONDS = 6 * 60 * 60
 DEFAULT_RETRIES = 3
+DEFAULT_SNAPSHOT_STALE_HOURS = 48
 STARTER_HINTS = ("starter", "boilerplate", "template", "saas", "example")
 RELEVANCE_STOPWORDS = {
     "starter",
@@ -141,6 +145,43 @@ class PyPISearchParser(HTMLParser):
         elif self._capture_desc:
             current = self._current.get("description", "")
             self._current["description"] = (current + " " + text).strip()
+
+
+def load_github_snapshot(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {"generated_at": "", "queries": {}}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"generated_at": "", "queries": {}}
+    queries = data.get("queries")
+    if not isinstance(queries, dict):
+        data["queries"] = {}
+    return data
+
+
+def _snapshot_entry(snapshot: dict[str, Any], query: str) -> dict[str, Any] | None:
+    queries = snapshot.get("queries") or {}
+    if query in queries:
+        return queries[query]
+    lowered = query.casefold()
+    for key, value in queries.items():
+        if str(key).casefold() == lowered:
+            return value
+    return None
+
+
+def _snapshot_generated_at(snapshot: dict[str, Any]) -> str:
+    return str(snapshot.get("generated_at") or "")
+
+
+def _snapshot_stale(snapshot: dict[str, Any], stale_after_hours: int = DEFAULT_SNAPSHOT_STALE_HOURS) -> bool:
+    generated_at = _parse_date(_snapshot_generated_at(snapshot))
+    if generated_at is None:
+        return True
+    now = dt.datetime.now(dt.timezone.utc)
+    age_seconds = (now - generated_at.astimezone(dt.timezone.utc)).total_seconds()
+    return age_seconds > (stale_after_hours * 60 * 60)
 
 
 def _cache_file(cache_dir: Path, url: str) -> Path:
@@ -493,6 +534,28 @@ def _normalize_github_item(component: str, purpose: str, query: str, item: dict[
     }
 
 
+def search_github_snapshot(
+    query: str,
+    component: str,
+    purpose: str,
+    limit: int,
+    *,
+    snapshot: dict[str, Any],
+    telemetry: dict[str, int],
+) -> list[dict[str, Any]]:
+    entry = _snapshot_entry(snapshot, query)
+    if not entry:
+        telemetry["github_snapshot_misses"] += 1
+        return []
+    telemetry["github_snapshot_hits"] += 1
+    items = entry.get("items") or []
+    return [
+        _normalize_github_item(component, purpose, query, item)
+        for item in items[:limit]
+        if isinstance(item, dict)
+    ]
+
+
 def search_github(
     query: str,
     component: str,
@@ -504,8 +567,21 @@ def search_github(
     retries: int,
     allow_network: bool,
     require_token: bool,
+    search_mode: str,
+    snapshot: dict[str, Any],
     telemetry: dict[str, int],
 ) -> list[dict[str, Any]]:
+    if search_mode in {"degraded", "offline"}:
+        snapshot_results = search_github_snapshot(
+            query,
+            component,
+            purpose,
+            limit,
+            snapshot=snapshot,
+            telemetry=telemetry,
+        )
+        if snapshot_results:
+            return snapshot_results
     token = os.getenv("GITHUB_TOKEN")
     if require_token and not token:
         raise SearchError("GITHUB_TOKEN is required for strict GitHub search")
@@ -673,11 +749,13 @@ def _contract_for_mode(search_mode: str, min_score_override: float | None) -> di
     return base
 
 
-def _data_freshness(telemetry: dict[str, int]) -> str:
+def _data_freshness(telemetry: dict[str, int], snapshot: dict[str, Any]) -> str:
     if telemetry["stale_cache_hits"] > 0:
         return "stale"
     if telemetry["live_requests"] > 0:
         return "live"
+    if telemetry["github_snapshot_hits"] > 0:
+        return "stale" if _snapshot_stale(snapshot) else "snapshot"
     if telemetry["fresh_cache_hits"] > 0:
         return "cached"
     return "stale"
@@ -690,6 +768,8 @@ def _search_quality(search_mode: str, freshness: str, kept: int, warnings: list[
         return "high"
     if search_mode == "offline" or freshness == "stale":
         return "low"
+    if freshness == "snapshot":
+        return "medium"
     if search_mode == "degraded" or warnings:
         return "medium"
     return "medium"
@@ -709,11 +789,14 @@ def run_search(
     """Fetch from all enabled providers and return kept candidates plus a detailed report."""
     settings = _contract_for_mode(search_mode, min_score)
     allow_network = bool(settings["allow_network"])
+    snapshot = load_github_snapshot(GITHUB_SNAPSHOT_PATH)
     telemetry = {
         "live_requests": 0,
         "fresh_cache_hits": 0,
         "stale_cache_hits": 0,
         "request_failures": 0,
+        "github_snapshot_hits": 0,
+        "github_snapshot_misses": 0,
     }
     handlers = {
         "github": lambda q, c, p, l: search_github(
@@ -726,6 +809,8 @@ def run_search(
             retries=retries,
             allow_network=allow_network,
             require_token=bool(settings["require_github_token"]),
+            search_mode=search_mode,
+            snapshot=snapshot,
             telemetry=telemetry,
         ),
         "npm": lambda q, c, p, l: search_npm(
@@ -756,6 +841,7 @@ def run_search(
     rejected: list[dict[str, Any]] = []
     warnings: list[str] = []
     fetched_count = 0
+    github_enabled = "github" in set(sources)
 
     for entry in search_map:
         component = str(entry.get("component") or "").strip()
@@ -815,7 +901,14 @@ def run_search(
             str(item.get("name") or ""),
         )
     )
-    freshness = _data_freshness(telemetry)
+    if github_enabled and search_mode in {"degraded", "offline"}:
+        if not (snapshot.get("queries") or {}):
+            warnings.append("GitHub snapshot is unavailable. Falling back to live GitHub or cache where the current mode allows it.")
+        elif telemetry["github_snapshot_hits"] == 0:
+            warnings.append("GitHub snapshot had no exact query hit. Falling back to live GitHub or cache for some queries.")
+        if telemetry["github_snapshot_hits"] > 0 and _snapshot_stale(snapshot):
+            warnings.append("GitHub snapshot is older than the freshness target and may be stale.")
+    freshness = _data_freshness(telemetry, snapshot)
     quality = _search_quality(search_mode, freshness, len(kept), warnings)
     report = {
         "search_mode": search_mode,
@@ -827,6 +920,14 @@ def run_search(
             "min_relevance": settings["min_relevance"],
             "min_score": settings["min_score"],
             "allowed_confidence": sorted(settings["allowed_confidence"]),
+        },
+        "snapshot": {
+            "path": str(GITHUB_SNAPSHOT_PATH),
+            "generated_at": _snapshot_generated_at(snapshot),
+            "query_count": len(snapshot.get("queries") or {}),
+            "hits": telemetry["github_snapshot_hits"],
+            "misses": telemetry["github_snapshot_misses"],
+            "stale": _snapshot_stale(snapshot) if (snapshot.get("queries") or {}) else True,
         },
         "stats": {
             "fetched": fetched_count,
