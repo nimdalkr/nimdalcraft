@@ -1,18 +1,25 @@
 ---
-name: saas-oss-accelerator
-description: Turn a vague SaaS or app idea into a structured, beginner-friendly open-source implementation package by extracting a product spec, proposing an MVP architecture, searching GitHub, npm, and PyPI for realistic building blocks, curating compatible options, and producing handoff prompts for Codex, Claude Code, or Cursor. Use when Codex needs to convert an idea, feature brief, or product note into a startable stack and implementation kickoff plan rather than generic brainstorming.
+name: nimdalcraft
+description: Turn a vague SaaS or app idea into a structured, beginner-friendly open-source implementation package by extracting a product spec, proposing an MVP architecture, searching GitHub, npm, and PyPI for realistic building blocks, curating compatible options, and producing runnable or handoff outputs. Use when Codex needs to convert an idea, feature brief, or product note into a startable stack and implementation kickoff plan rather than generic brainstorming.
 ---
 
-# SaaS OSS Accelerator
+# Nimdalcraft
 
 ## Overview
 
 Use this skill to transform a rough product idea into a startable SaaS build package.
 Favor practical MVP combinations for beginners over fashionable stacks or maximal flexibility.
+Keep the normal coding flow intact: the user should already be inside Codex or another coding agent session when this skill is used.
 
 ## Quick Start
 
-Use the CLI entrypoint instead of hand-authoring `state.json`.
+Preferred usage is inside Codex:
+
+```text
+Use $nimdalcraft to turn this idea into a runnable starter package: client portal SaaS with auth and uploads
+```
+
+Use the CLI for one-time setup, validation, or standalone runs instead of hand-authoring `state.json`.
 
 ```bash
 python run.py --idea "AI-assisted invoicing SaaS for freelancers" --search-mode degraded

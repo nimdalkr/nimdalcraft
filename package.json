@@ -1,0 +1,32 @@
+{
+  "name": "nimdalcraft",
+  "version": "0.1.0",
+  "description": "Turn ideas into runnable or handoff-ready OSS SaaS starter packages.",
+  "bin": {
+    "nimdalcraft": "bin/nimdalcraft.js"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "skills/nimdalcraft/SKILL.md",
+    "skills/nimdalcraft/run.py",
+    "skills/nimdalcraft/agents",
+    "skills/nimdalcraft/assets",
+    "skills/nimdalcraft/references",
+    "skills/nimdalcraft/scripts/pipeline_state.py",
+    "skills/nimdalcraft/scripts/source_search.py",
+    "skills/nimdalcraft/scripts/validate_starters.py"
+  ],
+  "keywords": [
+    "codex",
+    "skill",
+    "saas",
+    "starter",
+    "oss",
+    "cli"
+  ],
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18"
+  }
+}

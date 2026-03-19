@@ -1,8 +1,6 @@
-__pycache__/
-*.pyc
-
-skills/nimdalcraft/work/
+skills/nimdalcraft/work
+skills/nimdalcraft/__pycache__
+skills/nimdalcraft/scripts/__pycache__
 skills/nimdalcraft/tmp-state.json
 skills/nimdalcraft/tmp-state.out.json
 skills/nimdalcraft/tmp-state.live.json
-nimdalcraft-output/

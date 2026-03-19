@@ -6,7 +6,7 @@ It turns:
 
 `idea -> structured spec -> MVP architecture -> OSS candidates -> curated starter package -> runnable or handoff output`
 
-The current implementation lives in [skills/saas-oss-accelerator](./skills/saas-oss-accelerator).
+The current implementation lives in [skills/nimdalcraft](./skills/nimdalcraft).
 
 ## What It Does
 
@@ -21,7 +21,7 @@ The current implementation lives in [skills/saas-oss-accelerator](./skills/saas-
 
 ```text
 .github/workflows/validate-starters.yml   Daily starter validation
-skills/saas-oss-accelerator/              Main skill package
+skills/nimdalcraft/                       Main skill package
   SKILL.md                                Skill instructions
   run.py                                  Main CLI entrypoint
   scripts/source_search.py                Deterministic search layer
@@ -30,18 +30,33 @@ skills/saas-oss-accelerator/              Main skill package
   references/                             Agent/reference docs
 ```
 
+## Recommended Flow
+
+Keep the normal vibe-coding flow:
+
+1. Open Codex or Claude Code first
+2. Use `$nimdalcraft` inside that session
+3. Use the CLI only for one-time setup or maintenance
+
+Inside Codex:
+
+```text
+Use $nimdalcraft to turn this idea into a runnable starter package: B2B client portal SaaS with auth and uploads
+```
+
 ## Quick Start
 
 From the repo root:
 
 ```powershell
-python skills\saas-oss-accelerator\run.py --idea "Client portal SaaS with auth file uploads and email jobs" --search-mode degraded --result-mode safe
+npx nimdalcraft setup
+npx nimdalcraft "Client portal SaaS with auth file uploads and email jobs" --search-mode degraded --result-mode safe
 ```
 
 Output is created under:
 
 ```text
-skills/saas-oss-accelerator/work/<idea-slug>-<timestamp>/
+nimdalcraft-output/<idea-slug>-<timestamp>/
 ```
 
 Main files to open first:
@@ -51,6 +66,50 @@ Main files to open first:
 - `NEXT_ACTION.md`
 - `prompts/codex.md`
 
+## Install And Use
+
+### 1. npm / npx
+
+After publishing the package, the intended UX is:
+
+```powershell
+npx nimdalcraft setup
+npx nimdalcraft "B2B client portal SaaS with auth and uploads"
+npx nimdalcraft doctor
+```
+
+Before publish, use local development commands:
+
+```powershell
+node bin\nimdalcraft.js init
+node bin\nimdalcraft.js "B2B client portal SaaS"
+node bin\nimdalcraft.js validate --all --update-status
+```
+
+Or link it locally:
+
+```powershell
+npm link
+nimdalcraft doctor
+nimdalcraft "B2B client portal SaaS"
+```
+
+### 2. Codex skill install
+
+`init` installs the bundled Codex skill into your Codex home.
+
+Direct command:
+
+```powershell
+npx nimdalcraft install codex
+```
+
+Then inside Codex you can use:
+
+```text
+Use $nimdalcraft to turn this idea into a runnable starter package.
+```
+
 ## Recommended Usage Modes
 
 ### 1. Safe planning mode
@@ -58,7 +117,7 @@ Main files to open first:
 Use this as the default path.
 
 ```powershell
-python skills\saas-oss-accelerator\run.py --idea "Internal admin SaaS for sales ops" --search-mode degraded --result-mode safe
+npx nimdalcraft run "Internal admin SaaS for sales ops" --search-mode degraded --result-mode safe
 ```
 
 ### 2. Explore mode
@@ -66,7 +125,7 @@ python skills\saas-oss-accelerator\run.py --idea "Internal admin SaaS for sales 
 Use this when you want alternatives.
 
 ```powershell
-python skills\saas-oss-accelerator\run.py --idea "Client portal SaaS" --search-mode degraded --result-mode explore
+npx nimdalcraft run "Client portal SaaS" --search-mode degraded --result-mode explore
 ```
 
 ### 3. Runnable mode
@@ -74,7 +133,7 @@ python skills\saas-oss-accelerator\run.py --idea "Client portal SaaS" --search-m
 Use this when you want a validated starter path.
 
 ```powershell
-python skills\saas-oss-accelerator\run.py --idea "Starter-driven SaaS" --output-mode runnable --search-mode degraded
+npx nimdalcraft run "Starter-driven SaaS" --output-mode runnable --search-mode degraded
 ```
 
 ### 4. Strict mode
@@ -83,7 +142,7 @@ Use this only when `GITHUB_TOKEN` is available.
 
 ```powershell
 $env:GITHUB_TOKEN="your-token"
-python skills\saas-oss-accelerator\run.py --idea "Client portal SaaS" --search-mode strict
+npx nimdalcraft run "Client portal SaaS" --search-mode strict
 ```
 
 ## Fast Test Guide
@@ -91,19 +150,19 @@ python skills\saas-oss-accelerator\run.py --idea "Client portal SaaS" --search-m
 ### Validate the code
 
 ```powershell
-python -m py_compile skills\saas-oss-accelerator\run.py skills\saas-oss-accelerator\scripts\validate_starters.py
+python -m py_compile skills\nimdalcraft\run.py skills\nimdalcraft\scripts\validate_starters.py
 ```
 
 ### Refresh the validated starter set
 
 ```powershell
-python skills\saas-oss-accelerator\scripts\validate_starters.py --all --update-status --work-dir skills\saas-oss-accelerator\work\starter-validation-manual
+npx nimdalcraft validate --all --update-status
 ```
 
 ### Test a successful runnable path
 
 ```powershell
-python skills\saas-oss-accelerator\run.py --idea "Simple internal SaaS" --force-starter local-test-starter --output-mode runnable --output-dir skills\saas-oss-accelerator\work\manual-success
+npx nimdalcraft run "Simple internal SaaS" --force-starter local-test-starter --output-mode runnable
 ```
 
 Expected:
@@ -115,7 +174,7 @@ Expected:
 ### Test the flaky fallback path
 
 ```powershell
-python skills\saas-oss-accelerator\run.py --idea "Simple internal SaaS" --force-starter local-flaky-starter --output-mode runnable --output-dir skills\saas-oss-accelerator\work\manual-flaky
+npx nimdalcraft run "Simple internal SaaS" --force-starter local-flaky-starter --output-mode runnable
 ```
 
 Expected:
@@ -166,10 +225,10 @@ Daily starter validation runs through:
 
 It refreshes:
 
-- `skills/saas-oss-accelerator/assets/trusted-starters.json`
+- `skills/nimdalcraft/assets/trusted-starters.json`
 
 ## Where To Read Next
 
-- [skills/saas-oss-accelerator/SKILL.md](./skills/saas-oss-accelerator/SKILL.md)
-- [skills/saas-oss-accelerator/run.py](./skills/saas-oss-accelerator/run.py)
-- [skills/saas-oss-accelerator/scripts/validate_starters.py](./skills/saas-oss-accelerator/scripts/validate_starters.py)
+- [skills/nimdalcraft/SKILL.md](./skills/nimdalcraft/SKILL.md)
+- [skills/nimdalcraft/run.py](./skills/nimdalcraft/run.py)
+- [skills/nimdalcraft/scripts/validate_starters.py](./skills/nimdalcraft/scripts/validate_starters.py)

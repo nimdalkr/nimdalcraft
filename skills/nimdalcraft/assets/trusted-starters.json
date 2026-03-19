@@ -36,9 +36,9 @@
       "detail": {
         "clone": {
           "status": "pass",
-          "command": "git clone https://github.com/ixartz/SaaS-Boilerplate C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\work\\starter-validation-batch-3\\saas-boilerplate\\project\\app",
+          "command": "git clone https://github.com/ixartz/SaaS-Boilerplate C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\nimdalcraft-output\\starter-validation-20260319-191010\\saas-boilerplate\\project\\app",
           "fallback_used": false,
-          "output": "Cloning into 'C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\work\\starter-validation-batch-3\\saas-boilerplate\\project\\app'...",
+          "output": "Cloning into 'C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\nimdalcraft-output\\starter-validation-20260319-191010\\saas-boilerplate\\project\\app'...",
           "return_code": 0
         },
         "install": {
@@ -88,6 +88,12 @@
         "status": "fail",
         "final_result": "unusable",
         "runnable_status": "fail"
+      },
+      {
+        "time": "2026-03-19T10:10:12+00:00",
+        "status": "fail",
+        "final_result": "unusable",
+        "runnable_status": "fail"
       }
     ]
   },
@@ -128,9 +134,9 @@
       "detail": {
         "clone": {
           "status": "pass",
-          "command": "git clone https://github.com/fastapi/full-stack-fastapi-template C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\work\\starter-validation-batch-3\\fastapi-full-stack\\project\\app",
+          "command": "git clone https://github.com/fastapi/full-stack-fastapi-template C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\nimdalcraft-output\\starter-validation-20260319-191010\\fastapi-full-stack\\project\\app",
           "fallback_used": false,
-          "output": "Cloning into 'C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\work\\starter-validation-batch-3\\fastapi-full-stack\\project\\app'...",
+          "output": "Cloning into 'C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\nimdalcraft-output\\starter-validation-20260319-191010\\fastapi-full-stack\\project\\app'...",
           "return_code": 0
         },
         "install": {
@@ -151,7 +157,7 @@
           "status": "fail",
           "command": "docker compose up --build",
           "fallback_used": false,
-          "output": "time=\"2026-03-19T15:39:24+09:00\" level=warning msg=\"The \\\"CI\\\" variable is not set. Defaulting to a blank string.\"\nerror during connect: in the default daemon configuration on Windows, the docker client must be run with elevated privileges to connect: Get \"http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.24/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dapp%22%3Atrue%7D%7D\": open //./pipe/docker_engine: The system cannot find the file specified.",
+          "output": "time=\"2026-03-19T19:10:14+09:00\" level=warning msg=\"The \\\"CI\\\" variable is not set. Defaulting to a blank string.\"\nerror during connect: in the default daemon configuration on Windows, the docker client must be run with elevated privileges to connect: Get \"http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.24/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dapp%22%3Atrue%7D%7D\": open //./pipe/docker_engine: The system cannot find the file specified.",
           "return_code": 1
         }
       }
@@ -177,6 +183,12 @@
       },
       {
         "time": "2026-03-19T06:39:24+00:00",
+        "status": "fail",
+        "final_result": "unusable",
+        "runnable_status": "fail"
+      },
+      {
+        "time": "2026-03-19T10:10:14+00:00",
         "status": "fail",
         "final_result": "unusable",
         "runnable_status": "fail"
@@ -220,7 +232,7 @@
       "detail": {
         "clone": {
           "status": "pass",
-          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\assets\\test-starter",
+          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\nimdalcraft\\assets\\test-starter",
           "fallback_used": false,
           "output": "",
           "return_code": 0
@@ -278,6 +290,18 @@
         "status": "pass",
         "final_result": "usable",
         "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T10:09:34+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T10:10:15+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
       }
     ]
   },
@@ -318,7 +342,7 @@
       "detail": {
         "clone": {
           "status": "pass",
-          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\assets\\test-starter-web",
+          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\nimdalcraft\\assets\\test-starter-web",
           "fallback_used": false,
           "output": "",
           "return_code": 0
@@ -355,6 +379,12 @@
       },
       {
         "time": "2026-03-19T06:39:26+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T10:10:15+00:00",
         "status": "pass",
         "final_result": "usable",
         "runnable_status": "pass"
@@ -398,7 +428,7 @@
       "detail": {
         "clone": {
           "status": "pass",
-          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\assets\\test-starter-api",
+          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\nimdalcraft\\assets\\test-starter-api",
           "fallback_used": false,
           "output": "",
           "return_code": 0
@@ -435,6 +465,12 @@
       },
       {
         "time": "2026-03-19T06:39:27+00:00",
+        "status": "pass",
+        "final_result": "usable",
+        "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T10:10:16+00:00",
         "status": "pass",
         "final_result": "usable",
         "runnable_status": "pass"
@@ -480,7 +516,7 @@
       "detail": {
         "clone": {
           "status": "pass",
-          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\saas-oss-accelerator\\assets\\test-starter-flaky",
+          "command": "copy C:\\Users\\Admin\\Desktop\\4_Personal\\opensourcesearch\\skills\\nimdalcraft\\assets\\test-starter-flaky",
           "fallback_used": false,
           "output": "",
           "return_code": 0
@@ -517,6 +553,12 @@
       },
       {
         "time": "2026-03-19T06:39:28+00:00",
+        "status": "pass",
+        "final_result": "unstable",
+        "runnable_status": "pass"
+      },
+      {
+        "time": "2026-03-19T10:10:17+00:00",
         "status": "pass",
         "final_result": "unstable",
         "runnable_status": "pass"

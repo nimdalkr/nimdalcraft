@@ -27,8 +27,8 @@ This command bootstraps state, runs search, ranks and filters candidates, then w
 Trusted starters are maintained as a validated set. Refresh them with:
 
 ```bash
-python scripts/validate_starters.py
 python scripts/validate_starters.py --starter local-test-starter
+python scripts/validate_starters.py --all --update-status
 ```
 
 ## Supported Sources In V1
@@ -79,7 +79,8 @@ python scripts/source_search.py --state-in work/state.json --state-out work/stat
 
 ## Runnable Contract
 
-- `runnable` mode only accepts starters with `status=verified`
+- `runnable` mode prefers starters with `status=verified`
+- if no verified starter matches, it may fall back to `status=flaky`
 - `--force-starter` may override normal selection for validation and debugging
 - runnable validation checks `clone`, `install`, `env`, and `run`
 

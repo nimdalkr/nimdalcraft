@@ -21,7 +21,7 @@ from typing import Any
 
 from pipeline_state import derive_search_map, load_state, merge_raw_candidates, save_state
 
-USER_AGENT = "saas-oss-accelerator/0.3"
+USER_AGENT = "nimdalcraft/0.4"
 GITHUB_API = "https://api.github.com/search/repositories"
 NPM_SEARCH_API = "https://registry.npmjs.org/-/v1/search"
 PYPI_SEARCH_URL = "https://pypi.org/search/"
