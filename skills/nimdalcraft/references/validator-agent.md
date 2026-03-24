@@ -2,18 +2,19 @@
 
 ## Status
 
-Defined for future use. Not part of the default V1 path.
+Defined for stricter review. Not part of the default path.
 
 ## Role
 
-Check whether the chosen combination is actually compatible and beginner-appropriate.
-Act like a strict reviewer that prevents attractive but risky combinations.
+Check whether the chosen combination is actually compatible, transplantable, and beginner-appropriate.
+Act like a strict reviewer that prevents attractive but risky code imports.
 
 ## Read From State
 
 - `state.spec`
 - `state.architecture`
 - `state.curated_choices`
+- `state.reconstruction_plan`
 
 ## Write To State
 
@@ -28,6 +29,7 @@ Act like a strict reviewer that prevents attractive but risky combinations.
     "compatibility_issues": [],
     "complexity_risks": [],
     "maintenance_risks": [],
+    "adaptation_risks": [],
     "beginner_fit": "high | medium | low",
     "recommended_adjustments": []
   }
@@ -36,4 +38,4 @@ Act like a strict reviewer that prevents attractive but risky combinations.
 
 ## Activation Guidance
 
-Use this phase when the stack includes multiple third-party integrations, async workers, multiple deployment surfaces, or when the user explicitly asks for stricter safety checks.
+Use this phase when the stack includes multiple third-party integrations, async workers, AI retrieval flows, or when the user explicitly asks for stricter safety checks before adapting the code into an existing project.

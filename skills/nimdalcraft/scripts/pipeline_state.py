@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Helpers for the SaaS OSS Accelerator pipeline state."""
+"""Helpers for the Nimdalcraft retrieval pipeline state."""
 
 from __future__ import annotations
 
@@ -12,16 +12,31 @@ DEFAULT_STATE = {
     "input": {},
     "spec": {},
     "architecture": {},
+    "feature_map": [],
     "search_map": [],
     "raw_candidates": [],
+    "code_candidates": [],
     "curated_choices": [],
     "validation_result": {},
+    "reconstruction_plan": {},
     "starter_plan": {},
     "execution": {},
     "reports": {},
 }
 
-DEFAULT_SOURCE_TYPES = ["npm", "pypi", "github"]
+DEFAULT_SOURCE_TYPES = [
+    "github",
+    "npm",
+    "pypi",
+    "sourcegraph",
+    "grep_app",
+    "searchcode",
+    "code_rag",
+    "oss_insight",
+    "deps_dev",
+    "continue",
+    "codeium",
+]
 
 
 def ensure_state(state: dict[str, Any] | None) -> dict[str, Any]:
@@ -122,10 +137,15 @@ def derive_search_map(state: dict[str, Any]) -> list[dict[str, Any]]:
                 "purpose": purpose,
                 "source_types": DEFAULT_SOURCE_TYPES[:],
                 "query_variants": _query_variants(component),
+                "symbol_hints": [],
+                "snippet_queries": [],
+                "semantic_queries": [purpose],
+                "adaptation_targets": [],
                 "selection_criteria": [
                     "beginner-friendly setup",
                     "clear maintenance signals",
-                    "MVP fit over platform breadth"
+                    "MVP fit over platform breadth",
+                    "prefer reusable implementation patterns over repo branding",
                 ],
             }
         )
@@ -142,7 +162,7 @@ def merge_raw_candidates(
         (
             str(item.get("component", "")).casefold(),
             str(item.get("source_type", "")).casefold(),
-            str(item.get("url", "")).casefold(),
+            str(item.get("url") or item.get("name") or "").casefold(),
         )
         for item in existing
     }
@@ -150,7 +170,7 @@ def merge_raw_candidates(
         key = (
             str(candidate.get("component", "")).casefold(),
             str(candidate.get("source_type", "")).casefold(),
-            str(candidate.get("url", "")).casefold(),
+            str(candidate.get("url") or candidate.get("name") or "").casefold(),
         )
         if key in seen:
             continue

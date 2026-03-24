@@ -93,7 +93,7 @@ function installCodexSkill() {
 
 function claudeCommandContents() {
   return `---
-description: Turn an app idea into a nimdalcraft starter package
+description: Turn an app idea into a nimdalcraft code retrieval plan
 argument-hint: [product idea]
 ---
 
@@ -106,8 +106,8 @@ Rules:
 - Treat the argument text as the product idea to structure.
 - Prefer a beginner-friendly SaaS MVP stack unless the user asks otherwise.
 - If the nimdalcraft CLI is available, prefer running \`npx nimdalcraft "$ARGUMENTS"\` or \`nimdalcraft "$ARGUMENTS"\` and summarize the generated \`STARTER_README.md\`, \`DECISION_LOG.md\`, and \`NEXT_ACTION.md\`.
-- If the CLI is not available, still apply the same nimdalcraft workflow manually: spec, architecture, OSS search/curation, starter plan, and runnable or handoff guidance.
-- Keep the final answer focused on one startable stack by default.
+- If the CLI is not available, still apply the same nimdalcraft workflow manually: feature extraction, code retrieval, activity and credibility filtering, reconstruction plan, and runnable or handoff guidance.
+- Keep the final answer focused on one startable path by default, but emphasize code-level patterns over repo branding.
 `;
 }
 

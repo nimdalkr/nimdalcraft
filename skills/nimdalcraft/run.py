@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""User-facing CLI entrypoint for the SaaS OSS Accelerator skill."""
+"""User-facing CLI entrypoint for the Nimdalcraft code retrieval and reconstruction skill."""
 
 from __future__ import annotations
 
@@ -29,6 +29,83 @@ FEATURE_KEYWORDS = {
     "AI Features": {"ai", "llm", "chatbot", "assistant", "embedding", "rag", "agent", "agents"},
     "Admin Dashboard": {"admin", "dashboard", "internal", "ops"},
 }
+FEATURE_BLUEPRINTS = {
+    "Authentication": {
+        "user_need": "Verify identity, protect routes, and manage sessions.",
+        "symbol_hints": ["verifyToken", "validateJwt", "requireAuth", "getServerSession", "authMiddleware"],
+        "snippet_queries": ["jwt.verify(", "Authorization: Bearer", "getServerSession("],
+        "semantic_queries": ["verify signed access token", "protect authenticated route", "resolve current user session"],
+        "adaptation_targets": ["middleware", "request auth helper", "session service"],
+        "repo_queries": ["jwt auth middleware", "session auth helper", "route guard auth"],
+    },
+    "File Uploads": {
+        "user_need": "Accept user files and connect them to storage safely.",
+        "symbol_hints": ["uploadFile", "putObject", "presignUpload", "handleMultipart", "saveUpload"],
+        "snippet_queries": ["FormData(", "multipart/form-data", "put_object(", "uploadBytes("],
+        "semantic_queries": ["stream uploaded file to storage", "generate signed upload url", "persist upload metadata"],
+        "adaptation_targets": ["upload route", "storage adapter", "client uploader"],
+        "repo_queries": ["multipart upload handler", "s3 upload helper", "signed upload url"],
+    },
+    "Background Jobs": {
+        "user_need": "Move slow or scheduled work into async execution.",
+        "symbol_hints": ["enqueueJob", "processQueue", "sendQueuedEmail", "runWorker", "handleWebhookJob"],
+        "snippet_queries": ["celery.task", "BullMQ(", "queue.add(", "@shared_task"],
+        "semantic_queries": ["enqueue background task", "process deferred job", "retry failed async work"],
+        "adaptation_targets": ["worker task", "queue client", "job dispatcher"],
+        "repo_queries": ["background job worker", "task queue retry", "email queue worker"],
+    },
+    "AI Features": {
+        "user_need": "Call models, retrieve context, and shape grounded responses.",
+        "symbol_hints": ["embedDocuments", "similaritySearch", "retrieveContext", "rerankResults", "generateAnswer"],
+        "snippet_queries": ["similarity_search(", "vectorstore", "embeddings.create(", "retriever.invoke("],
+        "semantic_queries": ["retrieve relevant code chunks", "rerank semantic matches", "generate grounded answer from retrieved context"],
+        "adaptation_targets": ["retriever", "prompt builder", "AI service"],
+        "repo_queries": ["code rag retriever", "semantic rerank code search", "embedding retrieval pipeline"],
+    },
+    "Admin Dashboard": {
+        "user_need": "Expose the workflow in a controlled app shell.",
+        "symbol_hints": ["DashboardLayout", "AdminPage", "ProtectedRoute", "DataTable", "SidebarNav"],
+        "snippet_queries": ["<Sidebar", "createBrowserRouter(", "layout.tsx", "dashboard/page.tsx"],
+        "semantic_queries": ["dashboard shell with protected routes", "admin data table pattern", "authenticated navigation layout"],
+        "adaptation_targets": ["page route", "dashboard shell", "feature module"],
+        "repo_queries": ["admin dashboard layout", "protected dashboard route", "crud dashboard starter"],
+    },
+}
+FOUNDATION_ENTRIES = [
+    {
+        "component": "Web app shell",
+        "purpose": "frontend application shell and routing baseline",
+        "source_types": ["github", "npm", "sourcegraph", "grep_app", "searchcode", "code_rag", "oss_insight", "deps_dev", "continue", "codeium"],
+        "query_variants": ["Next.js app router dashboard", "React admin shell", "protected dashboard layout"],
+        "symbol_hints": ["layout", "ProtectedRoute", "SidebarNav"],
+        "snippet_queries": ["layout.tsx", "dashboard/page.tsx"],
+        "semantic_queries": ["dashboard app shell", "protected application layout"],
+        "adaptation_targets": ["routes", "shared layout", "navigation"],
+        "selection_criteria": ["fast beginner setup", "easy insertion into an existing app", "strong code transplant surface"],
+    },
+    {
+        "component": "Backend service foundation",
+        "purpose": "API boundary and service-layer structure",
+        "source_types": ["github", "pypi", "sourcegraph", "grep_app", "searchcode", "code_rag", "oss_insight", "deps_dev", "continue", "codeium"],
+        "query_variants": ["FastAPI service layer", "service repository pattern api", "modular backend starter"],
+        "symbol_hints": ["router", "service", "repository", "depends"],
+        "snippet_queries": ["APIRouter(", "router = APIRouter(", "Depends("],
+        "semantic_queries": ["modular api structure", "service layer with route handlers"],
+        "adaptation_targets": ["api route", "service class", "dependency container"],
+        "selection_criteria": ["clear docs", "lightweight MVP structure", "supports function-level reuse"],
+    },
+    {
+        "component": "Persistence toolkit",
+        "purpose": "database access layer and schema management",
+        "source_types": ["github", "npm", "pypi", "sourcegraph", "grep_app", "searchcode", "code_rag", "oss_insight", "deps_dev", "continue", "codeium"],
+        "query_variants": ["Prisma repository pattern", "SQLModel CRUD service", "Postgres ORM migration workflow"],
+        "symbol_hints": ["create", "update", "findMany", "select", "session"],
+        "snippet_queries": ["prisma.", "SessionLocal", "select("],
+        "semantic_queries": ["crud persistence helper", "relational data access layer"],
+        "adaptation_targets": ["repository", "model", "migration"],
+        "selection_criteria": ["migrations support", "simple local setup", "works well for CRUD-heavy SaaS"],
+    },
+]
 FAILURE_ORDER = ["no_candidates", "low_coverage", "runnable_failed", "low_confidence", "degraded_search"]
 TRUSTED_STARTERS_PATH = SCRIPT_DIR / "assets" / "trusted-starters.json"
 SUCCESS_CONFIDENCE_LEVELS = {"high"}
@@ -70,69 +147,51 @@ def infer_features(tokens: set[str]) -> list[str]:
     return features
 
 
-def build_search_map(idea: str, beginner: bool) -> list[dict[str, Any]]:
+def build_feature_map(idea: str, beginner: bool) -> list[dict[str, Any]]:
     tokens = idea_keywords(idea)
-    search_map = [
-        {
-            "component": "Next.js SaaS starter",
-            "purpose": "frontend application shell",
-            "source_types": ["github", "npm"],
-            "query_variants": ["Next.js SaaS starter", "Next.js starter template auth dashboard", "React admin dashboard starter"],
-            "selection_criteria": ["fast beginner setup", "good auth integration surface", "strong starter-template fit"],
-        },
-        {
-            "component": "FastAPI backend starter",
-            "purpose": "backend API foundation",
-            "source_types": ["github", "pypi"],
-            "query_variants": ["FastAPI starter", "FastAPI boilerplate", "FastAPI SaaS template"],
-            "selection_criteria": ["clear docs", "lightweight MVP structure", "beginner-friendly Python backend"],
-        },
-        {
-            "component": "PostgreSQL ORM toolkit",
-            "purpose": "database access layer",
-            "source_types": ["github", "npm", "pypi"],
-            "query_variants": ["PostgreSQL ORM starter", "Prisma starter", "SQLModel starter"],
-            "selection_criteria": ["migrations support", "simple local setup", "works well for CRUD-heavy SaaS"],
-        },
-    ]
-    if tokens & FEATURE_KEYWORDS["Authentication"]:
-        search_map.append(
+    features = infer_features(tokens)
+    feature_map: list[dict[str, Any]] = []
+    for index, feature in enumerate(features, start=1):
+        blueprint = FEATURE_BLUEPRINTS.get(feature, {})
+        feature_map.append(
             {
-                "component": "Authentication solution",
-                "purpose": "sign-in, session, and user management",
-                "source_types": ["github", "npm", "pypi"],
-                "query_variants": ["NextAuth starter", "better-auth starter", "FastAPI auth starter"],
-                "selection_criteria": ["simple local auth", "clear session model", "beginner-friendly docs"],
+                "id": f"feature-{index:02d}",
+                "label": feature,
+                "user_need": blueprint.get("user_need") or f"Implement {feature.lower()} for the product.",
+                "priority": "high" if feature in {"Authentication", "Admin Dashboard"} else "medium",
+                "queries": {
+                    "symbol_hints": list(blueprint.get("symbol_hints") or []),
+                    "snippet_queries": list(blueprint.get("snippet_queries") or []),
+                    "semantic_queries": list(blueprint.get("semantic_queries") or [feature]),
+                    "repo_queries": list(blueprint.get("repo_queries") or [feature]),
+                },
+                "adaptation_targets": list(blueprint.get("adaptation_targets") or []),
+                "beginner_bias": "prefer narrow reusable functions" if beginner else "allow broader framework patterns",
             }
         )
-    if tokens & FEATURE_KEYWORDS["File Uploads"]:
+    return feature_map
+
+
+def build_search_map(idea: str, beginner: bool, feature_map: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    active_features = feature_map or build_feature_map(idea, beginner)
+    search_map = [dict(entry) for entry in FOUNDATION_ENTRIES]
+    for feature in active_features:
         search_map.append(
             {
-                "component": "File storage adapter",
-                "purpose": "file upload and object storage integration",
-                "source_types": ["github", "npm", "pypi"],
-                "query_variants": ["S3 upload starter", "uploadthing starter", "FastAPI file upload storage"],
-                "selection_criteria": ["simple upload flow", "good starter examples", "minimal cloud lock-in for MVP"],
-            }
-        )
-    if tokens & FEATURE_KEYWORDS["Background Jobs"]:
-        search_map.append(
-            {
-                "component": "Background job worker",
-                "purpose": "async tasks and queue processing",
-                "source_types": ["github", "npm", "pypi"],
-                "query_variants": ["Celery starter", "RQ starter", "BullMQ starter"],
-                "selection_criteria": ["easy local development", "clear queue semantics", "not too heavy for MVP"],
-            }
-        )
-    if tokens & FEATURE_KEYWORDS["AI Features"]:
-        search_map.append(
-            {
-                "component": "LLM application toolkit",
-                "purpose": "AI or agent integration layer",
-                "source_types": ["github", "npm", "pypi"],
-                "query_variants": ["OpenAI SDK starter", "LangChain starter", "FastAPI OpenAI template"],
-                "selection_criteria": ["simple request flow", "good quickstart docs", "minimal framework lock-in"],
+                "component": f"{feature.get('label')} implementation pattern",
+                "feature_label": feature.get("label"),
+                "purpose": feature.get("user_need"),
+                "source_types": ["github", "npm", "pypi", "sourcegraph", "grep_app", "searchcode", "code_rag", "oss_insight", "deps_dev", "continue", "codeium"],
+                "query_variants": list((feature.get("queries") or {}).get("repo_queries") or [feature.get("label")]),
+                "symbol_hints": list((feature.get("queries") or {}).get("symbol_hints") or []),
+                "snippet_queries": list((feature.get("queries") or {}).get("snippet_queries") or []),
+                "semantic_queries": list((feature.get("queries") or {}).get("semantic_queries") or [feature.get("label")]),
+                "adaptation_targets": list(feature.get("adaptation_targets") or []),
+                "selection_criteria": [
+                    "prefer symbol and function-level matches over repo branding",
+                    "prefer code patterns that can be transplanted into an existing project",
+                    "prefer active, credible implementations with narrow integration surface",
+                ],
             }
         )
     if beginner:
@@ -141,7 +200,7 @@ def build_search_map(idea: str, beginner: bool) -> list[dict[str, Any]]:
     return search_map
 
 
-def build_spec(idea: str, beginner: bool) -> dict[str, Any]:
+def build_spec(idea: str, beginner: bool, feature_map: list[dict[str, Any]]) -> dict[str, Any]:
     tokens = idea_keywords(idea)
     assumptions = ["Default architecture is web-based SaaS unless later refined."]
     if beginner:
@@ -153,14 +212,18 @@ def build_spec(idea: str, beginner: bool) -> dict[str, Any]:
         "target_user": infer_target_user(idea),
         "core_jobs": ["Capture the main workflow described by the idea.", "Deliver the first usable web-based MVP flow."],
         "core_features": features,
+        "feature_units": feature_map,
         "must_have_constraints": ["Use OSS components that are practical for a first MVP."],
         "nice_to_have_constraints": ["Keep architecture explainable for a beginner builder."],
         "input_assumptions": assumptions,
-        "success_criteria": ["A builder can choose one stack and begin implementation immediately."],
+        "success_criteria": [
+            "A builder can choose one stack and begin implementation immediately.",
+            "The engine can identify reusable code patterns, not just repos.",
+        ],
     }
 
 
-def build_architecture(spec: dict[str, Any], search_map: list[dict[str, Any]]) -> dict[str, Any]:
+def build_architecture(spec: dict[str, Any], search_map: list[dict[str, Any]], feature_map: list[dict[str, Any]]) -> dict[str, Any]:
     feature_names = set(spec.get("core_features") or [])
     return {
         "architecture": {
@@ -175,19 +238,48 @@ def build_architecture(spec: dict[str, Any], search_map: list[dict[str, Any]]) -
         },
         "mvp_boundaries": ["Prefer one web app, one API, and one database for the first release."],
         "tradeoffs": ["Favor simpler local setup over maximum extensibility."],
+        "retrieval_pipeline": {
+            "steps": [
+                "feature extraction",
+                "code-level search",
+                "semantic rerank",
+                "activity filter",
+                "credibility filter",
+                "project-aware reconstruction",
+            ],
+            "feature_count": len(feature_map),
+        },
+        "adaptation_contract": {
+            "goal": "Use OSS as code reference material, then reshape it to the user's project.",
+            "rules": [
+                "Prefer function and symbol transplants over full repo adoption.",
+                "Use repo/package choices as evidence, not as the final output format.",
+            ],
+        },
         "component_search_targets": [entry["component"] for entry in search_map],
     }
 
 
-def build_initial_state(idea: str, beginner: bool, search_map: list[dict[str, Any]], search_mode: str, result_mode: str, output_mode: str) -> dict[str, Any]:
-    spec = build_spec(idea, beginner)
-    architecture = build_architecture(spec, search_map)
+def build_initial_state(
+    idea: str,
+    beginner: bool,
+    feature_map: list[dict[str, Any]],
+    search_map: list[dict[str, Any]],
+    search_mode: str,
+    result_mode: str,
+    output_mode: str,
+) -> dict[str, Any]:
+    spec = build_spec(idea, beginner, feature_map)
+    architecture = build_architecture(spec, search_map, feature_map)
     return ensure_state(
         {
             "input": {"idea": idea, "beginner_mode": beginner},
             "spec": spec,
             "architecture": architecture,
+            "feature_map": feature_map,
             "search_map": search_map,
+            "code_candidates": [],
+            "reconstruction_plan": {},
             "execution": {
                 "search_mode": search_mode,
                 "result_mode": result_mode,
@@ -221,8 +313,17 @@ def candidate_lookup(candidates: list[dict[str, Any]]) -> dict[tuple[str, str], 
 
 
 def short_reason(candidate: dict[str, Any]) -> str:
+    scores = candidate.get("scores", {}) or {}
+    if scores.get("code_search", 0) >= 0.7:
+        evidence = candidate.get("code_evidence") or {}
+        symbol_matches = evidence.get("symbol_matches") or []
+        if symbol_matches:
+            return f"strong code match ({', '.join(symbol_matches[:2])})"
+        snippet_matches = evidence.get("snippet_matches") or []
+        if snippet_matches:
+            return f"strong snippet match ({', '.join(snippet_matches[:1])})"
     days = candidate.get("last_update")
-    if candidate.get("scores", {}).get("maintenance", 0) >= 0.7 and days:
+    if scores.get("maintenance", 0) >= 0.7 and days:
         age = candidate.get("last_update") or ""
         return f"maintained ({age[:10] or 'recent'})"
     if candidate.get("setup_difficulty") == "low":
@@ -239,37 +340,45 @@ def feature_fit_reasons(component: str, spec: dict[str, Any]) -> tuple[list[str]
     fit: list[str] = []
     gaps: list[str] = []
 
-    if "frontend" in component_lower or "next.js" in component_lower or "react" in component_lower:
-        fit.append("gives a dashboard shell for keyword lists, content planning, and memo screens")
+    if "web app shell" in component_lower or "frontend" in component_lower or "next.js" in component_lower or "react" in component_lower:
+        fit.append("gives a reusable app shell that can host the feature workflow quickly")
         if "authentication" in features:
             fit.append("reduces time to add sign-in and protected user pages")
-        gaps.append("still needs Naver-blogger-specific workflow screens and labels")
+        gaps.append("still needs domain-specific pages and labels")
 
-    if "backend" in component_lower:
-        fit.append("fits CRUD APIs for keywords, post ideas, calendars, checklists, and performance notes")
+    if "backend" in component_lower or "service foundation" in component_lower:
+        fit.append("fits CRUD APIs and service-level orchestration for the first vertical slice")
         fit.append("keeps the first MVP API simple enough for a beginner builder")
-        gaps.append("does not include Naver publishing or analytics integrations by default")
+        gaps.append("does not include your domain integrations by default")
 
-    if "orm" in component_lower or "database" in component_lower:
-        fit.append("fits relational data for keyword banks, content plans, task checklists, and result notes")
-        gaps.append("does not provide domain analytics logic on its own")
+    if "persistence" in component_lower or "orm" in component_lower or "database" in component_lower:
+        fit.append("fits relational data storage and transactional application flows")
+        gaps.append("does not provide domain rules on its own")
 
-    if "auth" in component_lower:
-        fit.append("helps support multi-user blogger accounts and protected workspaces")
-        gaps.append("does not model Naver-specific permissions by itself")
+    if "authentication" in component_lower or "auth" in component_lower:
+        fit.append("helps support protected routes, session verification, and user scoping")
+        gaps.append("still needs your user-role and permission model")
 
-    if "storage" in component_lower:
-        fit.append("can support image or file attachments for content planning workflows")
-        gaps.append("does not include Naver media sync by default")
+    if "file uploads" in component_lower or "storage" in component_lower:
+        fit.append("can support attachment and object-storage workflows")
+        gaps.append("still needs the exact storage lifecycle for your product")
 
-    if "worker" in component_lower:
-        fit.append("can support scheduled reminders or background content tasks later")
+    if "background jobs" in component_lower or "worker" in component_lower:
+        fit.append("can support async tasks, retries, and scheduled work")
         gaps.append("is optional for the first manual MVP")
 
+    if "ai features" in component_lower or "rag" in component_lower or "llm" in component_lower:
+        fit.append("supports retrieval and generation flows that need grounding")
+        gaps.append("still needs domain prompts, safety rules, and evaluation")
+
+    if "implementation pattern" in component_lower and not fit:
+        fit.append("gives code-level patterns that can be transplanted into the user's project")
+        gaps.append("still needs project-specific naming, wiring, and tests")
+
     if not fit:
-        fit.append("supports the general SaaS MVP foundation needed for this idea")
+        fit.append("supports the general MVP foundation needed for this idea")
     if not gaps:
-        gaps.append("still needs Naver-blogger-specific features to be implemented on top")
+        gaps.append("still needs project-specific features to be implemented on top")
     return fit[:2], gaps[:2]
 
 
@@ -294,6 +403,8 @@ def curate_candidates(candidates: list[dict[str, Any]], result_mode: str, spec: 
     for component, items in grouped.items():
         selected = items[0]
         fit_reasons, gap_reasons = feature_fit_reasons(component, spec)
+        code_evidence = selected.get("code_evidence") or {}
+        retrieval_sources = selected.get("retrieval_sources") or []
         entry = {
             "component": component,
             "selected": {
@@ -302,9 +413,22 @@ def curate_candidates(candidates: list[dict[str, Any]], result_mode: str, spec: 
                 "url": selected.get("url"),
                 "confidence": selected.get("confidence"),
                 "score": selected.get("overall_score"),
-                "why_selected": [short_reason(selected), f"overall score {selected.get('overall_score')}"],
+                "why_selected": [
+                    short_reason(selected),
+                    f"overall score {selected.get('overall_score')}",
+                    f"activity {((selected.get('scores') or {}).get('activity') or 0):.3f}",
+                    f"credibility {((selected.get('scores') or {}).get('credibility') or 0):.3f}",
+                ],
+                "retrieval_sources": retrieval_sources,
+                "code_evidence": {
+                    "feature_label": code_evidence.get("feature_label"),
+                    "symbol_matches": code_evidence.get("symbol_matches") or [],
+                    "snippet_matches": code_evidence.get("snippet_matches") or [],
+                    "semantic_hits": code_evidence.get("semantic_hits") or [],
+                },
                 "recommended_for_features": fit_reasons,
                 "not_covered_yet": gap_reasons,
+                "adaptation_hints": selected.get("adaptation_hints") or [],
                 "risks": (selected.get("complexity_signals") or []) + (selected.get("maintenance_flags") or []),
             },
             "alternatives": [],
@@ -313,6 +437,7 @@ def curate_candidates(candidates: list[dict[str, Any]], result_mode: str, spec: 
                 "demo-only project",
                 "weak maintenance signal",
                 "too much setup complexity for beginner MVP",
+                "weak code-level retrieval evidence",
             ],
         }
         if result_mode == "explore":
@@ -321,7 +446,10 @@ def curate_candidates(candidates: list[dict[str, Any]], result_mode: str, spec: 
                     "name": alt.get("name"),
                     "source_type": alt.get("source_type"),
                     "url": alt.get("url"),
-                    "why_not_selected": [f"ranked below the primary choice ({alt.get('overall_score')})"],
+                    "why_not_selected": [
+                        f"ranked below the primary choice ({alt.get('overall_score')})",
+                        f"code evidence {((alt.get('scores') or {}).get('code_search') or 0):.3f}",
+                    ],
                 }
                 for alt in items[1:3]
             ]
@@ -422,11 +550,25 @@ def build_forced_candidate(starter: dict[str, Any]) -> dict[str, Any]:
             "popularity": 1.0,
             "beginner": 1.0,
             "relevance": 1.0,
+            "code_search": 1.0,
+            "activity": 1.0,
+            "credibility": 1.0,
+            "adaptation": 1.0,
         },
         "overall_score": 100.0,
         "confidence": "high",
         "setup_difficulty": "low",
         "relevance_hits": ["trusted"],
+        "retrieval_sources": ["validated_set"],
+        "code_evidence": {
+            "feature_label": "Trusted runnable starter",
+            "symbol_matches": ["trusted"],
+            "snippet_matches": [],
+            "semantic_hits": ["trusted"],
+        },
+        "activity_signals": {"contributors_estimate": 1, "commit_frequency_estimate": 1, "growth_signal": 1.0},
+        "credibility_signals": {"dependency_usage_proxy": 1.0, "license_present": True},
+        "adaptation_hints": ["use as runnable fallback, not as the only retrieval strategy"],
     }
 
 
@@ -468,9 +610,10 @@ def build_starter_plan(state: dict[str, Any], trusted_starter: dict[str, Any] | 
         elif source_type == "github":
             setup_steps.append(f"git clone {selected.get('url')}.git")
     integration_order = [
-        "Set up the frontend shell and routing.",
+        "Set up the app shell and route boundaries first.",
         "Create the backend API skeleton and health endpoint.",
         "Add the database layer and first migration.",
+        "Transplant one function-level implementation per feature before importing larger modules.",
     ]
     if any("Authentication" in str(item.get("component") or "") for item in curated):
         integration_order.append("Integrate auth before protected CRUD screens.")
@@ -478,8 +621,17 @@ def build_starter_plan(state: dict[str, Any], trusted_starter: dict[str, Any] | 
         integration_order.append("Add upload/storage flows after core CRUD works.")
     if has_worker:
         integration_order.append("Introduce the background worker after synchronous flows are stable.")
+    adaptation_tasks = []
+    insertion_points = []
+    for item in curated:
+        selected = item.get("selected") or {}
+        for hint in (selected.get("adaptation_hints") or [])[:2]:
+            adaptation_tasks.append(f"{item.get('component')}: {hint}")
+        evidence = selected.get("code_evidence") or {}
+        if evidence.get("feature_label"):
+            insertion_points.append(f"{item.get('component')}: align with {evidence.get('feature_label')}")
     summary_lines = [
-        f"- {item.get('component')}: {(item.get('selected') or {}).get('name')} ({(item.get('selected') or {}).get('source_type')}) -> {(((item.get('selected') or {}).get('recommended_for_features')) or ['general SaaS MVP support'])[0]}"
+        f"- {item.get('component')}: {(item.get('selected') or {}).get('name')} ({(item.get('selected') or {}).get('source_type')}) -> {(((item.get('selected') or {}).get('recommended_for_features')) or ['general MVP support'])[0]}"
         for item in curated
     ]
     if trusted_starter:
@@ -491,12 +643,143 @@ def build_starter_plan(state: dict[str, Any], trusted_starter: dict[str, Any] | 
         "files_to_create_first": ["README.md", "app/web/package.json", "app/api/requirements.txt", "docs/architecture.md"],
         "setup_steps": setup_steps,
         "integration_order": integration_order,
+        "adaptation_tasks": adaptation_tasks,
+        "insertion_points": insertion_points,
+        "code_reuse_rules": [
+            "Prefer function or module extraction over whole-repo adoption.",
+            "Rename and reshape imported code to fit the target project structure.",
+            "Keep only the minimum dependency surface required by the transplanted logic.",
+        ],
         "prompt_handoff": {
-            "for_codex": f"Build the first working MVP for this idea: {idea}\nUse this chosen stack:\n{joined_summary}\nImplement the first vertical slice only.",
-            "for_claude_code": f"Implement a beginner-friendly SaaS MVP for: {idea}\nUse this chosen stack:\n{joined_summary}\nKeep the first slice small and runnable.",
-            "for_cursor": f"Generate the initial runnable project for: {idea}\nUse this chosen stack:\n{joined_summary}\nFocus on local setup first.",
+            "for_codex": f"Build the first working MVP for this idea: {idea}\nUse these chosen implementation sources:\n{joined_summary}\nExtract code patterns and adapt them to the user's project structure. Implement the first vertical slice only.",
+            "for_claude_code": f"Implement a beginner-friendly MVP for: {idea}\nUse these implementation sources:\n{joined_summary}\nPrefer function-level reuse and keep the first slice small and runnable.",
+            "for_cursor": f"Generate the initial runnable project for: {idea}\nUse these implementation sources:\n{joined_summary}\nFocus on local setup first, then adapt retrieved code into the project structure.",
         },
     }
+
+
+def _safe_slug(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", str(value).lower()).strip("-")
+    return slug or "feature"
+
+
+def _detect_project_language(target_project: Path) -> str:
+    counts = {"ts": 0, "py": 0}
+    for pattern in ("*.ts", "*.tsx", "*.js", "*.jsx"):
+        counts["ts"] += len(list(target_project.rglob(pattern)))
+    for pattern in ("*.py",):
+        counts["py"] += len(list(target_project.rglob(pattern)))
+    return "python" if counts["py"] > counts["ts"] else "typescript"
+
+
+def _project_roots(target_project: Path) -> list[Path]:
+    roots = []
+    for name in ("src", "app", "apps", "server", "backend", "frontend"):
+        candidate = target_project / name
+        if candidate.exists() and candidate.is_dir():
+            roots.append(candidate)
+    return roots or [target_project]
+
+
+def _choose_adaptation_dir(target_project: Path, component: str, language: str) -> Path:
+    roots = _project_roots(target_project)
+    component_lower = component.lower()
+    preferred = roots[0]
+    if "auth" in component_lower:
+        return preferred / "nimdalcraft_auth"
+    if "upload" in component_lower or "storage" in component_lower:
+        return preferred / "nimdalcraft_uploads"
+    if "dashboard" in component_lower or "shell" in component_lower:
+        return preferred / "nimdalcraft_ui"
+    if "backend" in component_lower or "service" in component_lower:
+        return preferred / "nimdalcraft_services"
+    return preferred / "nimdalcraft_integrations"
+
+
+def _render_adaptation_module(component: str, selected: dict[str, Any], language: str) -> str:
+    code_evidence = selected.get("code_evidence") or {}
+    hints = selected.get("adaptation_hints") or []
+    lines = [
+        "Generated by Nimdalcraft.",
+        f"Component: {component}",
+        f"Source: {selected.get('name') or ''} ({selected.get('source_type') or ''})",
+        f"URL: {selected.get('url') or ''}",
+    ]
+    if code_evidence.get("symbol_matches"):
+        lines.append(f"Symbol matches: {', '.join((code_evidence.get('symbol_matches') or [])[:4])}")
+    if code_evidence.get("snippet_matches"):
+        lines.append(f"Snippet matches: {', '.join((code_evidence.get('snippet_matches') or [])[:4])}")
+    if hints:
+        lines.append(f"Adaptation hints: {'; '.join(hints[:3])}")
+    if language == "python":
+        doc = "\n".join(lines)
+        return (
+            '"""\n'
+            f"{doc}\n"
+            '"""\n\n'
+            f"def integrate_{_safe_slug(component).replace('-', '_')}() -> dict[str, str]:\n"
+            f'    """Entry point for adapting retrieved OSS patterns into this project."""\n'
+            "    return {\n"
+            f'        "component": "{component}",\n'
+            f'        "source": "{selected.get("name") or ""}",\n'
+            '        "status": "needs_manual_wiring",\n'
+            "    }\n"
+        )
+    comment = "\n".join(f" * {line}" for line in lines)
+    fn_name = _safe_slug(component).replace("-", "_")
+    return (
+        "/**\n"
+        f"{comment}\n"
+        " */\n"
+        f"export function integrate_{fn_name}() {{\n"
+        "  return {\n"
+        f'    component: "{component}",\n'
+        f'    source: "{selected.get("name") or ""}",\n'
+        '    status: "needsManualWiring",\n'
+        "  };\n"
+        "}\n"
+    )
+
+
+def build_adaptation_actions(state: dict[str, Any], target_project: Path) -> dict[str, Any]:
+    language = _detect_project_language(target_project)
+    extension = "py" if language == "python" else "ts"
+    actions = []
+    for item in state.get("curated_choices") or []:
+        component = str(item.get("component") or "integration")
+        selected = item.get("selected") or {}
+        target_dir = _choose_adaptation_dir(target_project, component, language)
+        target_file = target_dir / f"{_safe_slug(component)}.{extension}"
+        actions.append(
+            {
+                "component": component,
+                "target_file": str(target_file),
+                "module_content": _render_adaptation_module(component, selected, language),
+                "source_name": selected.get("name") or "",
+                "source_url": selected.get("url") or "",
+                "code_evidence": selected.get("code_evidence") or {},
+                "adaptation_hints": selected.get("adaptation_hints") or [],
+            }
+        )
+    return {
+        "target_project": str(target_project),
+        "language": language,
+        "action_count": len(actions),
+        "actions": actions,
+    }
+
+
+def apply_adaptation_actions(actions: dict[str, Any]) -> dict[str, Any]:
+    written_files = []
+    for action in actions.get("actions") or []:
+        target_file = Path(str(action.get("target_file") or ""))
+        target_file.parent.mkdir(parents=True, exist_ok=True)
+        target_file.write_text(str(action.get("module_content") or ""), encoding="utf-8")
+        written_files.append(str(target_file))
+    manifest_path = Path(str(actions.get("target_project") or ".")) / ".nimdalcraft" / "adaptation-manifest.json"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(actions, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return {"written_files": written_files, "manifest": str(manifest_path)}
 
 
 def failure_modes_for_state(state: dict[str, Any], trusted_starter: dict[str, Any] | None) -> list[str]:
@@ -567,6 +850,11 @@ def build_decision_log(state: dict[str, Any], result_mode: str) -> str:
         lines.append("Why:")
         lines.append(f"- {short_reason(candidate) if candidate else 'best surviving candidate'}")
         lines.append(f"- confidence {str(selected.get('confidence') or '').title()}")
+        evidence = selected.get("code_evidence") or {}
+        if evidence.get("symbol_matches"):
+            lines.append(f"- symbols: {', '.join((evidence.get('symbol_matches') or [])[:2])}")
+        if evidence.get("snippet_matches"):
+            lines.append(f"- snippets: {', '.join((evidence.get('snippet_matches') or [])[:1])}")
         for reason in (selected.get("recommended_for_features") or [])[:2]:
             lines.append(f"- fit: {reason}")
         lines.append("Rejected:")
@@ -623,12 +911,15 @@ def build_recovery_action(state: dict[str, Any]) -> str:
 def build_next_action(state: dict[str, Any]) -> str:
     execution = state.get("execution") or {}
     runnable_report = (state.get("reports") or {}).get("runnable") or {}
+    adaptation_report = (state.get("reports") or {}).get("adaptation") or {}
     failure_modes = execution.get("failure_modes") or []
     expected_output = str(runnable_report.get("expected_output") or "service starts successfully")
     lines = ["# Next Action", ""]
     outcome = execution.get("outcome_status")
     if outcome == "success" and execution.get("output_mode") == "runnable":
         lines.extend(["1. Run `project\\setup.ps1`.", "2. Open `project\\RUNBOOK.md`.", f"3. Expect: {expected_output}."])
+    elif outcome == "success" and adaptation_report.get("target_project") and adaptation_report.get("applied"):
+        lines.extend(["1. Review the generated adaptation modules in the target project.", "2. Open the adaptation manifest under `.nimdalcraft`.", "3. Wire the generated modules into the existing routes or services."])
     elif outcome == "success":
         lines.extend(["1. Open `STARTER_README.md`.", "2. Paste `prompts\\codex.md` into your coding agent.", "3. Done."])
     elif "low_coverage" in failure_modes:
@@ -642,9 +933,11 @@ def build_next_action(state: dict[str, Any]) -> str:
 
 def build_readme(state: dict[str, Any], result_mode: str, trusted_starter: dict[str, Any] | None) -> str:
     execution = state.get("execution") or {}
+    search_report = (state.get("reports") or {}).get("search") or {}
+    adaptation_report = (state.get("reports") or {}).get("adaptation") or {}
     validation_summary = (state.get("reports") or {}).get("validation_set") or {}
     lines = [
-        "# SaaS OSS Accelerator Output",
+        "# Nimdalcraft Retrieval Output",
         "",
         f"- SEARCH_MODE: `{execution.get('search_mode')}`",
         f"- SEARCH_QUALITY: `{execution.get('search_quality')}`",
@@ -667,10 +960,15 @@ def build_readme(state: dict[str, Any], result_mode: str, trusted_starter: dict[
         "",
         str(state.get("input", {}).get("idea", "")),
         "",
-        "## Chosen Stack",
+        "## Retrieval Pipeline",
         "",
-        "| Component | Choice | Source | Score | Confidence | URL |",
-        "|---|---|---|---:|---|---|",
+        f"- PRIMARY_SOURCES: `{', '.join((search_report.get('contract') or {}).get('primary_sources') or []) or 'n/a'}`",
+        f"- EVIDENCE_SOURCES: `{', '.join((search_report.get('contract') or {}).get('evidence_sources') or []) or 'n/a'}`",
+        "",
+        "## Chosen Sources",
+        "",
+        "| Component | Choice | Source | Score | Code | Activity | Confidence | URL |",
+        "|---|---|---|---:|---:|---:|---|---|",
     ]
     raw_lookup = candidate_lookup(state.get("raw_candidates") or [])
     for item in state.get("curated_choices") or []:
@@ -678,7 +976,7 @@ def build_readme(state: dict[str, Any], result_mode: str, trusted_starter: dict[
         selected = item.get("selected") or {}
         chosen = raw_lookup.get((component, str(selected.get("name") or "")), {})
         lines.append(
-            f"| {component} | {selected.get('name','')} | {selected.get('source_type','')} | {chosen.get('overall_score','')} | {selected.get('confidence','')} | {selected.get('url','')} |"
+            f"| {component} | {selected.get('name','')} | {selected.get('source_type','')} | {chosen.get('overall_score','')} | {((chosen.get('scores') or {}).get('code_search',''))} | {((chosen.get('scores') or {}).get('activity',''))} | {selected.get('confidence','')} | {selected.get('url','')} |"
         )
     lines.extend(["", "## Why These Picks Fit", ""])
     for item in state.get("curated_choices") or []:
@@ -687,6 +985,20 @@ def build_readme(state: dict[str, Any], result_mode: str, trusted_starter: dict[
         lines.append("Recommended for:")
         for reason in (selected.get("recommended_for_features") or [])[:2]:
             lines.append(f"- {reason}")
+        evidence = selected.get("code_evidence") or {}
+        if any(evidence.get(key) for key in ("symbol_matches", "snippet_matches", "semantic_hits")):
+            lines.append("Code evidence:")
+            for label, values in (
+                ("symbols", evidence.get("symbol_matches") or []),
+                ("snippets", evidence.get("snippet_matches") or []),
+                ("semantic", evidence.get("semantic_hits") or []),
+            ):
+                if values:
+                    lines.append(f"- {label}: {', '.join(values[:3])}")
+        if selected.get("adaptation_hints"):
+            lines.append("Adaptation hints:")
+            for hint in (selected.get("adaptation_hints") or [])[:2]:
+                lines.append(f"- {hint}")
         lines.append("Not covered yet:")
         for reason in (selected.get("not_covered_yet") or [])[:2]:
             lines.append(f"- {reason}")
@@ -711,7 +1023,23 @@ def build_readme(state: dict[str, Any], result_mode: str, trusted_starter: dict[
             for alt in alternatives:
                 lines.append(f"- {alt.get('name')} -> {((alt.get('why_not_selected') or []) or ['ranked lower'])[0]}")
             lines.append("")
-    lines.extend(["## Setup Commands", ""])
+    lines.extend(["## Reconstruction Plan", ""])
+    for step in (state.get("starter_plan") or {}).get("integration_order", []):
+        lines.append(f"- {step}")
+    if adaptation_report.get("target_project"):
+        lines.extend(
+            [
+                "",
+                "## Adaptation Target",
+                "",
+                f"- TARGET_PROJECT: `{adaptation_report.get('target_project')}`",
+                f"- ACTION_COUNT: `{adaptation_report.get('action_count') or 0}`",
+                f"- APPLIED: `{bool(adaptation_report.get('applied'))}`",
+            ]
+        )
+        for path in (adaptation_report.get("written_files") or [])[:10]:
+            lines.append(f"- WRITTEN_FILE: `{path}`")
+    lines.extend(["", "## Setup Commands", ""])
     for step in (state.get("starter_plan") or {}).get("setup_steps", []):
         lines.append(f"- `{step}`")
     return "\n".join(lines).rstrip() + "\n"
@@ -723,7 +1051,9 @@ def write_stage_files(output_dir: Path, state: dict[str, Any]) -> None:
     write_json(output_dir / "02-architecture.json", state.get("architecture") or {})
     write_json(output_dir / "03-search-report.json", ((state.get("reports") or {}).get("search") or {}))
     write_json(output_dir / "04-curation.json", state.get("curated_choices") or [])
+    write_json(output_dir / "05-reconstruction-plan.json", state.get("reconstruction_plan") or {})
     write_json(output_dir / "05-starter-plan.json", state.get("starter_plan") or {})
+    write_json(output_dir / "06-adaptation-actions.json", ((state.get("reports") or {}).get("adaptation") or {}))
 
 
 def write_prompt_files(output_dir: Path, starter_plan: dict[str, Any]) -> None:
@@ -896,15 +1226,21 @@ def preflight_failure(search_mode: str, sources: list[str]) -> str:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the SaaS OSS Accelerator from a single idea string.")
+    parser = argparse.ArgumentParser(description="Run Nimdalcraft from a single idea string.")
     parser.add_argument("--idea", required=True, help="Product idea in plain language")
     parser.add_argument("--output-dir", help="Directory for generated outputs")
     parser.add_argument("--force-starter", help="Force a trusted starter by id, label, or repo")
-    parser.add_argument("--sources", default="npm,pypi,github", help="Comma-separated search sources")
+    parser.add_argument(
+        "--sources",
+        default="github,npm,pypi,sourcegraph,grep_app,searchcode,code_rag,oss_insight,deps_dev,continue,codeium",
+        help="Comma-separated search sources",
+    )
     parser.add_argument("--limit-per-source", type=int, default=4, help="Results per source query")
     parser.add_argument("--cache-ttl-seconds", type=int, default=6 * 60 * 60, help="Fresh cache TTL")
     parser.add_argument("--retries", type=int, default=3, help="HTTP retries per request")
     parser.add_argument("--validation-timeout-sec", type=int, default=120, help="Per-step runnable validation timeout")
+    parser.add_argument("--target-project", help="Optional local project path for adaptation planning")
+    parser.add_argument("--apply-adaptations", action="store_true", help="Write generated adaptation modules into --target-project")
     parser.add_argument("--search-mode", choices=["strict", "degraded", "offline"], default="strict")
     parser.add_argument("--result-mode", choices=["safe", "explore"], default="safe")
     parser.add_argument("--output-mode", choices=["plan", "runnable"], default="plan")
@@ -916,12 +1252,17 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    if args.apply_adaptations and not args.target_project:
+        raise SystemExit("--apply-adaptations requires --target-project")
+    if args.target_project and not Path(args.target_project).exists():
+        raise SystemExit(f"target project does not exist: {args.target_project}")
     output_dir = Path(args.output_dir) if args.output_dir else build_output_dir(SCRIPT_DIR / "work", args.idea)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     sources = [item.strip() for item in args.sources.split(",") if item.strip()]
-    search_map = build_search_map(args.idea, args.beginner)
-    state = build_initial_state(args.idea, args.beginner, search_map, args.search_mode, args.result_mode, args.output_mode)
+    feature_map = build_feature_map(args.idea, args.beginner)
+    search_map = build_search_map(args.idea, args.beginner, feature_map)
+    state = build_initial_state(args.idea, args.beginner, feature_map, search_map, args.search_mode, args.result_mode, args.output_mode)
     trusted_starters = load_trusted_starters()
     state["reports"]["validation_set"] = validation_set_summary(trusted_starters)
     forced_starter = None
@@ -1014,6 +1355,11 @@ def main() -> int:
             }
 
     state["raw_candidates"] = candidates
+    state["code_candidates"] = [
+        candidate
+        for candidate in candidates
+        if (candidate.get("scores") or {}).get("code_search", 0) >= 0.3
+    ]
     search_report = state["reports"]["search"]
     state["execution"]["search_quality"] = search_report["search_quality"]
     state["execution"]["data_freshness"] = search_report["data_freshness"]
@@ -1060,6 +1406,31 @@ def main() -> int:
         state["execution"]["final_result"] = "n/a"
 
     state["starter_plan"] = build_starter_plan(state, trusted_starter)
+    state["reconstruction_plan"] = state["starter_plan"]
+    state["reports"]["adaptation"] = {
+        "target_project": "",
+        "action_count": 0,
+        "applied": False,
+        "written_files": [],
+        "manifest": "",
+    }
+    if args.target_project:
+        target_project = Path(args.target_project).resolve()
+        adaptation_actions = build_adaptation_actions(state, target_project)
+        state["reports"]["adaptation"] = {
+            **adaptation_actions,
+            "applied": False,
+            "written_files": [],
+            "manifest": "",
+        }
+        if args.apply_adaptations:
+            applied = apply_adaptation_actions(adaptation_actions)
+            state["reports"]["adaptation"] = {
+                **adaptation_actions,
+                "applied": True,
+                "written_files": applied["written_files"],
+                "manifest": applied["manifest"],
+            }
     failure_modes = failure_modes_for_state(state, trusted_starter)
     state["execution"]["failure_modes"] = failure_modes
     state["execution"]["failure_mode"] = primary_failure_mode(failure_modes)
@@ -1093,7 +1464,10 @@ def main() -> int:
         "failure_mode": state["execution"]["failure_mode"] or "none",
         "failure_modes": state["execution"]["failure_modes"],
         "retained_candidates": len(state["raw_candidates"]),
+        "code_candidates": len(state["code_candidates"]),
         "curated_components": len(state["curated_choices"]),
+        "adaptation_actions": int(((state.get("reports") or {}).get("adaptation") or {}).get("action_count") or 0),
+        "adaptations_applied": bool(((state.get("reports") or {}).get("adaptation") or {}).get("applied")),
     }
     print(json.dumps(summary, indent=2, ensure_ascii=False))
     return 2 if state["execution"]["outcome_status"] == "failed" else 0

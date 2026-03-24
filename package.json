@@ -1,7 +1,7 @@
 {
   "name": "nimdalcraft",
   "version": "0.1.0",
-  "description": "Turn ideas into runnable or handoff-ready OSS SaaS starter packages.",
+  "description": "Turn ideas into feature-level OSS code retrieval and reconstruction plans.",
   "bin": {
     "nimdalcraft": "bin/nimdalcraft.js"
   },
@@ -23,7 +23,9 @@
     "saas",
     "starter",
     "oss",
-    "cli"
+    "cli",
+    "code-search",
+    "rag"
   ],
   "license": "UNLICENSED",
   "engines": {

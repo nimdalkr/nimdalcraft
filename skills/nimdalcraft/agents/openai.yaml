@@ -1,4 +1,4 @@
 interface:
   display_name: "Nimdalcraft"
-  short_description: "Turn product ideas into runnable or handoff-ready OSS starter packages"
-  default_prompt: "Use $nimdalcraft to turn this SaaS idea into a runnable or handoff-ready open-source starter package."
+  short_description: "Turn product ideas into feature-level OSS code retrieval and reconstruction plans"
+  default_prompt: "Use $nimdalcraft to turn this idea into a code retrieval and reconstruction plan that adapts OSS patterns to the user's project."

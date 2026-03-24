@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch, filter, score, and explain OSS candidates for the SaaS OSS Accelerator."""
+"""Fetch, filter, score, and explain OSS candidates for Nimdalcraft's code retrieval engine."""
 
 from __future__ import annotations
 
@@ -89,6 +89,14 @@ SEARCH_MODE_SETTINGS = {
         "allowed_confidence": {"high", "medium", "low"},
     },
 }
+PRIMARY_FETCH_SOURCES = {"github", "npm", "pypi"}
+CODE_EVIDENCE_SOURCES = {"sourcegraph", "grep_app", "searchcode", "code_rag"}
+QUALITY_EVIDENCE_SOURCES = {"oss_insight", "deps_dev"}
+ADAPTATION_EVIDENCE_SOURCES = {"continue", "codeium"}
+SOURCEGRAPH_DEFAULT_ENDPOINT = "https://sourcegraph.com/.api/graphql"
+SEARCHCODE_API_BASE = "https://searchcode.com/api"
+OSS_INSIGHT_API_BASE = "https://api.ossinsight.io/v1"
+DEPS_DEV_API_BASE = "https://api.deps.dev/v3"
 
 
 class SearchError(RuntimeError):
@@ -290,6 +298,59 @@ def _get_text(
     return payload.decode("utf-8", errors="replace")
 
 
+def _post_json(
+    url: str,
+    payload: dict[str, Any],
+    *,
+    headers: dict[str, str] | None,
+    cache_dir: Path | None,
+    cache_ttl_seconds: int,
+    retries: int,
+    allow_network: bool,
+    telemetry: dict[str, int],
+) -> Any:
+    body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    cache_key = f"POST::{url}::{hashlib.sha256(body).hexdigest()}"
+    cache_path = _cache_file(cache_dir, cache_key) if cache_dir else None
+    now = time.time()
+    if cache_path and cache_path.exists():
+        age = now - cache_path.stat().st_mtime
+        if age <= cache_ttl_seconds:
+            telemetry["fresh_cache_hits"] += 1
+            cached = _read_cache(cache_path) or b"{}"
+            return json.loads(cached.decode("utf-8"))
+    if not allow_network:
+        if cache_path and cache_path.exists():
+            telemetry["stale_cache_hits"] += 1
+            cached = _read_cache(cache_path) or b"{}"
+            return json.loads(cached.decode("utf-8"))
+        telemetry["request_failures"] += 1
+        raise SearchError("offline mode has no cached response for this POST request")
+
+    request_headers = {"Content-Type": "application/json", **(headers or {})}
+    request = urllib.request.Request(url, data=body, headers=request_headers, method="POST")
+    last_error: Exception | None = None
+    for attempt in range(1, retries + 1):
+        try:
+            with urllib.request.urlopen(request, timeout=25) as response:
+                response_payload = response.read()
+            telemetry["live_requests"] += 1
+            if cache_path:
+                _write_cache(cache_path, response_payload)
+            return json.loads(response_payload.decode("utf-8"))
+        except (urllib.error.HTTPError, urllib.error.URLError, json.JSONDecodeError) as exc:
+            last_error = exc
+            if attempt < retries:
+                time.sleep(1.2 * attempt)
+                continue
+            if cache_path and cache_path.exists():
+                telemetry["stale_cache_hits"] += 1
+                cached = _read_cache(cache_path) or b"{}"
+                return json.loads(cached.decode("utf-8"))
+    telemetry["request_failures"] += 1
+    raise SearchError(f"request failed for {url}: {last_error}")
+
+
 def _parse_date(value: str | None) -> dt.datetime | None:
     if not value:
         return None
@@ -313,6 +374,23 @@ def _tokenize(text: str) -> list[str]:
 
 def _clamp(score: float) -> float:
     return max(0.0, min(1.0, score))
+
+
+def _repo_slug_from_url(url: str) -> str:
+    match = re.search(r"github\.com/([^/\s]+/[^/\s#?]+)", url or "", re.IGNORECASE)
+    return match.group(1).rstrip(".git") if match else ""
+
+
+def _owner_repo(slug: str) -> tuple[str, str]:
+    if "/" not in slug:
+        return "", ""
+    owner, repo = slug.split("/", 1)
+    return owner, repo
+
+
+def _normalize_snippet(value: str, limit: int = 240) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    return text[:limit]
 
 
 def _contains_any(text: str, hints: tuple[str, ...]) -> bool:
@@ -405,6 +483,497 @@ def _score_relevance(candidate: dict[str, Any]) -> tuple[float, list[str]]:
     return _clamp(len(hits) / len(set(target_tokens))), hits
 
 
+def _dedupe_texts(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for value in values:
+        text = str(value or "").strip()
+        if not text:
+            continue
+        key = text.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(text)
+    return deduped
+
+
+def _semantic_tokens(values: list[str]) -> list[str]:
+    tokens: list[str] = []
+    for value in values:
+        tokens.extend(token for token in _tokenize(value) if len(token) > 2 and token not in RELEVANCE_STOPWORDS)
+    return sorted(set(tokens))
+
+
+def build_retrieval_context(candidate: dict[str, Any], entry: dict[str, Any], enabled_sources: set[str]) -> dict[str, Any]:
+    symbol_hints = _dedupe_texts([str(item) for item in (entry.get("symbol_hints") or [])])
+    snippet_queries = _dedupe_texts([str(item) for item in (entry.get("snippet_queries") or [])])
+    semantic_queries = _dedupe_texts(
+        [str(item) for item in (entry.get("semantic_queries") or [])]
+        + [str(item) for item in (entry.get("query_variants") or [])]
+        + [str(entry.get("purpose") or "")]
+    )
+    adaptation_targets = _dedupe_texts([str(item) for item in (entry.get("adaptation_targets") or [])])
+    searchable = " ".join(
+        [
+            str(candidate.get("name") or ""),
+            str(candidate.get("description") or ""),
+            str(candidate.get("query") or ""),
+            " ".join(candidate.get("selection_hints") or []),
+        ]
+    ).casefold()
+    symbol_matches = sorted({hint for hint in symbol_hints if hint.casefold() in searchable})
+    snippet_matches = sorted({hint for hint in snippet_queries if hint.casefold() in searchable})
+    semantic_hits = sorted({token for token in _semantic_tokens(semantic_queries) if token in searchable})
+    feature_label = str(entry.get("feature_label") or entry.get("component") or "").strip()
+    retrieval_sources = sorted(
+        source
+        for source in enabled_sources
+        if source in (CODE_EVIDENCE_SOURCES | QUALITY_EVIDENCE_SOURCES | ADAPTATION_EVIDENCE_SOURCES)
+    )
+    return {
+        "feature_label": feature_label,
+        "symbol_hints": symbol_hints,
+        "symbol_matches": symbol_matches,
+        "snippet_queries": snippet_queries,
+        "snippet_matches": snippet_matches,
+        "semantic_queries": semantic_queries,
+        "semantic_hits": semantic_hits,
+        "adaptation_targets": adaptation_targets,
+        "retrieval_sources": retrieval_sources,
+    }
+
+
+def _searchcode_hits(
+    candidate: dict[str, Any],
+    retrieval_context: dict[str, Any],
+    *,
+    cache_dir: Path,
+    cache_ttl_seconds: int,
+    retries: int,
+    allow_network: bool,
+    telemetry: dict[str, int],
+) -> list[dict[str, Any]]:
+    queries = _dedupe_texts(
+        list(retrieval_context.get("symbol_hints") or [])[:2]
+        + list(retrieval_context.get("snippet_queries") or [])[:2]
+    )
+    repo_slug = _repo_slug_from_url(str(candidate.get("url") or ""))
+    repo_filter = f" repo:{repo_slug}" if repo_slug else ""
+    hits: list[dict[str, Any]] = []
+    for query in queries[:3]:
+        params = {"q": f"{query}{repo_filter}"}
+        try:
+            data = _get_json(
+                f"{SEARCHCODE_API_BASE}/codesearch_I/?{urllib.parse.urlencode(params)}",
+                headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+                cache_dir=cache_dir / "searchcode",
+                cache_ttl_seconds=cache_ttl_seconds,
+                retries=retries,
+                allow_network=allow_network,
+                telemetry=telemetry,
+            )
+        except SearchError:
+            continue
+        for item in (data.get("results") or [])[:2]:
+            preview = item.get("lines") or item.get("line") or item.get("filename") or ""
+            hits.append(
+                {
+                    "query": query,
+                    "repo": item.get("repo") or "",
+                    "path": item.get("filename") or "",
+                    "preview": _normalize_snippet(preview),
+                }
+            )
+    return hits[:5]
+
+
+def _sourcegraph_hits(
+    candidate: dict[str, Any],
+    retrieval_context: dict[str, Any],
+    *,
+    cache_dir: Path,
+    cache_ttl_seconds: int,
+    retries: int,
+    allow_network: bool,
+    telemetry: dict[str, int],
+) -> list[dict[str, Any]]:
+    endpoint = os.getenv("SOURCEGRAPH_ENDPOINT", SOURCEGRAPH_DEFAULT_ENDPOINT).strip()
+    token = os.getenv("SOURCEGRAPH_TOKEN", "").strip()
+    if not endpoint or not token:
+        return []
+    repo_slug = _repo_slug_from_url(str(candidate.get("url") or ""))
+    headers = {"User-Agent": USER_AGENT, "Authorization": f"token {token}"}
+    hits: list[dict[str, Any]] = []
+    symbol_queries = retrieval_context.get("symbol_hints") or []
+    snippet_queries = retrieval_context.get("snippet_queries") or []
+    search_terms = _dedupe_texts(list(symbol_queries)[:2] + list(snippet_queries)[:1])
+    graphql = """
+    query CodeSearch($query: String!) {
+      search(query: $query, version: V3) {
+        results {
+          results {
+            __typename
+            ... on FileMatch {
+              repository { name }
+              file { path url }
+              lineMatches {
+                preview
+                lineNumber
+              }
+            }
+            ... on SymbolMatch {
+              symbol {
+                name
+                kind
+                location {
+                  resource {
+                    path
+                    url
+                    repository { name }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    """
+    for term in search_terms:
+        repo_scope = f" repo:{repo_slug}" if repo_slug else ""
+        query = f"{term}{repo_scope} count:5"
+        if term in symbol_queries:
+            query = f"type:symbol {query}"
+        elif any(ch in term for ch in "()[]{}.*+?|\\"):
+            query = f"patternType:regexp {query}"
+        try:
+            data = _post_json(
+                endpoint,
+                {"query": graphql, "variables": {"query": query}},
+                headers=headers,
+                cache_dir=cache_dir / "sourcegraph",
+                cache_ttl_seconds=cache_ttl_seconds,
+                retries=retries,
+                allow_network=allow_network,
+                telemetry=telemetry,
+            )
+        except SearchError:
+            continue
+        results = (((data.get("data") or {}).get("search") or {}).get("results") or {}).get("results") or []
+        for item in results[:3]:
+            typename = str(item.get("__typename") or "")
+            if typename == "FileMatch":
+                preview = ""
+                line_matches = item.get("lineMatches") or []
+                if line_matches:
+                    preview = line_matches[0].get("preview") or ""
+                hits.append(
+                    {
+                        "query": term,
+                        "repo": ((item.get("repository") or {}).get("name") or ""),
+                        "path": ((item.get("file") or {}).get("path") or ""),
+                        "preview": _normalize_snippet(preview),
+                    }
+                )
+            elif typename == "SymbolMatch":
+                symbol = item.get("symbol") or {}
+                resource = ((symbol.get("location") or {}).get("resource") or {})
+                hits.append(
+                    {
+                        "query": term,
+                        "repo": ((resource.get("repository") or {}).get("name") or ""),
+                        "path": resource.get("path") or "",
+                        "preview": _normalize_snippet(f"{symbol.get('kind') or 'symbol'} {symbol.get('name') or ''}"),
+                    }
+                )
+    return hits[:5]
+
+
+def _grep_app_hits(
+    candidate: dict[str, Any],
+    retrieval_context: dict[str, Any],
+    *,
+    cache_dir: Path,
+    cache_ttl_seconds: int,
+    retries: int,
+    allow_network: bool,
+    telemetry: dict[str, int],
+) -> list[dict[str, Any]]:
+    endpoint = os.getenv("GREP_APP_ENDPOINT", "").strip()
+    if not endpoint:
+        return []
+    repo_slug = _repo_slug_from_url(str(candidate.get("url") or ""))
+    queries = _dedupe_texts(list(retrieval_context.get("snippet_queries") or [])[:2] + list(retrieval_context.get("symbol_hints") or [])[:1])
+    hits: list[dict[str, Any]] = []
+    for query in queries[:3]:
+        params = {"q": query}
+        if repo_slug:
+            params["filter[repo][0]"] = repo_slug
+        try:
+            data = _get_json(
+                f"{endpoint}?{urllib.parse.urlencode(params)}",
+                headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+                cache_dir=cache_dir / "grep_app",
+                cache_ttl_seconds=cache_ttl_seconds,
+                retries=retries,
+                allow_network=allow_network,
+                telemetry=telemetry,
+            )
+        except SearchError:
+            continue
+        for item in (data.get("hits") or data.get("results") or [])[:2]:
+            preview = item.get("content") or item.get("snippet") or ""
+            hits.append(
+                {
+                    "query": query,
+                    "repo": item.get("repo") or repo_slug,
+                    "path": item.get("path") or "",
+                    "preview": _normalize_snippet(preview),
+                }
+            )
+    return hits[:5]
+
+
+def _oss_insight_metrics(
+    candidate: dict[str, Any],
+    *,
+    cache_dir: Path,
+    cache_ttl_seconds: int,
+    retries: int,
+    allow_network: bool,
+    telemetry: dict[str, int],
+) -> dict[str, Any]:
+    if str(candidate.get("source_type") or "") != "github":
+        return {}
+    owner, repo = _owner_repo(_repo_slug_from_url(str(candidate.get("url") or "")))
+    if not owner or not repo:
+        return {}
+    try:
+        creators = _get_json(
+            f"{OSS_INSIGHT_API_BASE}/repos/{owner}/{repo}/pull-request-creators?page_size=100",
+            headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+            cache_dir=cache_dir / "oss_insight",
+            cache_ttl_seconds=cache_ttl_seconds,
+            retries=retries,
+            allow_network=allow_network,
+            telemetry=telemetry,
+        )
+    except SearchError:
+        return {}
+    rows = creators.get("rows") or creators.get("data") or []
+    contributor_count = len(rows)
+    pr_total = 0.0
+    for row in rows:
+        for key in ("pull_requests", "prs", "count"):
+            if key in row:
+                pr_total += float(row.get(key) or 0.0)
+                break
+    return {
+        "contributors_count": contributor_count,
+        "commit_frequency_proxy": round(pr_total, 2),
+        "activity_source": "oss_insight",
+    }
+
+
+def _deps_dev_metrics(
+    candidate: dict[str, Any],
+    *,
+    cache_dir: Path,
+    cache_ttl_seconds: int,
+    retries: int,
+    allow_network: bool,
+    telemetry: dict[str, int],
+) -> dict[str, Any]:
+    source_type = str(candidate.get("source_type") or "")
+    if source_type not in {"npm", "pypi"}:
+        return {}
+    system = "npm" if source_type == "npm" else "pypi"
+    name = urllib.parse.quote(str(candidate.get("name") or ""), safe="")
+    version = urllib.parse.quote(str(candidate.get("latest_version") or ""), safe="")
+    if not name:
+        return {}
+    path = f"/systems/{system}/packages/{name}"
+    if version:
+        path += f"/versions/{version}"
+    try:
+        data = _get_json(
+            f"{DEPS_DEV_API_BASE}{path}",
+            headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+            cache_dir=cache_dir / "deps_dev",
+            cache_ttl_seconds=cache_ttl_seconds,
+            retries=retries,
+            allow_network=allow_network,
+            telemetry=telemetry,
+        )
+    except SearchError:
+        return {}
+    licenses = data.get("licenses") or []
+    links = data.get("links") or []
+    related = data.get("relatedProjects") or []
+    score = min(1.0, ((1 if licenses else 0) + min(3, len(links)) + min(3, len(related))) / 7.0)
+    return {
+        "dependency_usage_proxy": round(score, 3),
+        "license_present": bool(licenses),
+        "related_project_count": len(related),
+        "credibility_source": "deps_dev",
+    }
+
+
+def _external_retrieval_evidence(
+    candidate: dict[str, Any],
+    retrieval_context: dict[str, Any],
+    enabled_sources: set[str],
+    *,
+    cache_dir: Path,
+    cache_ttl_seconds: int,
+    retries: int,
+    allow_network: bool,
+    telemetry: dict[str, int],
+) -> dict[str, Any]:
+    evidence: dict[str, Any] = {"sourcegraph": [], "grep_app": [], "searchcode": []}
+    if "sourcegraph" in enabled_sources:
+        evidence["sourcegraph"] = _sourcegraph_hits(
+            candidate,
+            retrieval_context,
+            cache_dir=cache_dir,
+            cache_ttl_seconds=cache_ttl_seconds,
+            retries=retries,
+            allow_network=allow_network,
+            telemetry=telemetry,
+        )
+    if "grep_app" in enabled_sources:
+        evidence["grep_app"] = _grep_app_hits(
+            candidate,
+            retrieval_context,
+            cache_dir=cache_dir,
+            cache_ttl_seconds=cache_ttl_seconds,
+            retries=retries,
+            allow_network=allow_network,
+            telemetry=telemetry,
+        )
+    if "searchcode" in enabled_sources:
+        evidence["searchcode"] = _searchcode_hits(
+            candidate,
+            retrieval_context,
+            cache_dir=cache_dir,
+            cache_ttl_seconds=cache_ttl_seconds,
+            retries=retries,
+            allow_network=allow_network,
+            telemetry=telemetry,
+        )
+    return evidence
+
+
+def _score_code_search(candidate: dict[str, Any], retrieval_context: dict[str, Any]) -> float:
+    symbol_total = max(1, len(retrieval_context.get("symbol_hints") or []))
+    snippet_total = max(1, len(retrieval_context.get("snippet_queries") or []))
+    semantic_total = max(1, len(_semantic_tokens(retrieval_context.get("semantic_queries") or [])))
+    symbol_score = len(retrieval_context.get("symbol_matches") or []) / symbol_total
+    snippet_score = len(retrieval_context.get("snippet_matches") or []) / snippet_total
+    semantic_score = len(retrieval_context.get("semantic_hits") or []) / semantic_total
+    external_hits = candidate.get("external_code_evidence") or {}
+    external_score = min(
+        1.0,
+        (
+            min(2, len(external_hits.get("sourcegraph") or []))
+            + min(2, len(external_hits.get("grep_app") or []))
+            + min(2, len(external_hits.get("searchcode") or []))
+        )
+        / 6.0,
+    )
+    if candidate.get("source_type") == "github":
+        semantic_score += 0.08
+    return _clamp((symbol_score * 0.28) + (snippet_score * 0.22) + (semantic_score * 0.20) + (external_score * 0.30))
+
+
+def _score_activity(candidate: dict[str, Any]) -> tuple[float, dict[str, Any]]:
+    raw = candidate.get("raw_signals") or {}
+    source_type = str(candidate.get("source_type") or "")
+    recency = _score_recency(candidate.get("last_update"))
+    external = candidate.get("external_activity_signals") or {}
+    if external:
+        contributors = float(external.get("contributors_count") or 0.0)
+        commit_frequency = float(external.get("commit_frequency_proxy") or 0.0)
+        score = _clamp((recency * 0.35) + min(1.0, contributors / 40.0) * 0.30 + min(1.0, commit_frequency / 100.0) * 0.35)
+        return score, {
+            "contributors_estimate": contributors,
+            "commit_frequency_estimate": commit_frequency,
+            "growth_signal": round(score, 3),
+            "activity_source": external.get("activity_source") or "external",
+        }
+    if source_type == "github":
+        stars = float(raw.get("stars") or 0.0)
+        forks = float(raw.get("forks") or 0.0)
+        contributors = max(1.0, min(25.0, round(math.sqrt(stars / 20.0), 1))) if stars > 0 else 1.0
+        commit_frequency = round((recency * 12.0) + min(8.0, math.log10(forks + 1.0) * 4.0), 2)
+        growth = round(min(1.0, math.log10(stars + forks + 1.0) / 4.0), 3)
+        score = _clamp((recency * 0.45) + (growth * 0.35) + min(1.0, contributors / 12.0) * 0.20)
+        return score, {
+            "contributors_estimate": contributors,
+            "commit_frequency_estimate": commit_frequency,
+            "growth_signal": growth,
+            "activity_source": "oss_insight_proxy",
+        }
+    registry_popularity = float(raw.get("popularity") or raw.get("quality") or 0.35)
+    score = _clamp((recency * 0.55) + (registry_popularity * 0.45))
+    return score, {
+        "contributors_estimate": 0,
+        "commit_frequency_estimate": round(recency * 10.0, 2),
+        "growth_signal": round(registry_popularity, 3),
+        "activity_source": "registry_proxy",
+    }
+
+
+def _score_credibility(candidate: dict[str, Any]) -> tuple[float, dict[str, Any]]:
+    raw = candidate.get("raw_signals") or {}
+    source_type = str(candidate.get("source_type") or "")
+    external = candidate.get("external_credibility_signals") or {}
+    if external:
+        score = _clamp(
+            (float(external.get("dependency_usage_proxy") or 0.0) * 0.75)
+            + ((1.0 if external.get("license_present") else 0.0) * 0.25)
+        )
+        return score, {
+            "dependency_usage_proxy": round(float(external.get("dependency_usage_proxy") or 0.0), 3),
+            "license_present": bool(external.get("license_present")),
+            "credibility_source": external.get("credibility_source") or "external",
+        }
+    has_license = 1.0 if candidate.get("license") else 0.0
+    if source_type == "github":
+        usage = _clamp(math.log10(float(raw.get("stars") or 0.0) + float(raw.get("forks") or 0.0) + 1.0) / 5.0)
+    else:
+        usage = _clamp(float(raw.get("popularity") or raw.get("maintenance") or raw.get("quality") or 0.35))
+    score = _clamp((usage * 0.75) + (has_license * 0.25))
+    return score, {
+        "dependency_usage_proxy": round(usage, 3),
+        "license_present": bool(candidate.get("license")),
+        "credibility_source": "deps_dev_proxy",
+    }
+
+
+def _adaptation_hints(candidate: dict[str, Any], retrieval_context: dict[str, Any]) -> list[str]:
+    hints: list[str] = []
+    for target in retrieval_context.get("adaptation_targets") or []:
+        hints.append(f"adapt for {target}")
+    if candidate.get("source_type") == "github":
+        hints.append("extract function-level implementation before copying project structure")
+    if candidate.get("beginner_fit_signals"):
+        hints.append("prefer narrow transplant over full repo adoption")
+    if candidate.get("complexity_signals"):
+        hints.append("strip infra-heavy layers during reconstruction")
+    return _dedupe_texts(hints)
+
+
+def _score_adaptation(candidate: dict[str, Any], retrieval_context: dict[str, Any]) -> tuple[float, list[str]]:
+    hints = _adaptation_hints(candidate, retrieval_context)
+    starter_bonus = min(0.2, len(candidate.get("beginner_fit_signals") or []) * 0.06)
+    complexity_penalty = min(0.35, len(candidate.get("complexity_signals") or []) * 0.1)
+    target_bonus = min(0.2, len(retrieval_context.get("adaptation_targets") or []) * 0.05)
+    score = _clamp(0.52 + starter_bonus + target_bonus - complexity_penalty)
+    return score, hints
+
+
 def _score_beginner(candidate: dict[str, Any]) -> tuple[float, str]:
     starter = len(candidate.get("beginner_fit_signals") or [])
     complexity = len(candidate.get("complexity_signals") or [])
@@ -430,7 +999,17 @@ def _candidate_confidence(overall_score: float) -> str:
     return "low"
 
 
-def enrich_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
+def enrich_candidate(
+    candidate: dict[str, Any],
+    entry: dict[str, Any],
+    enabled_sources: set[str],
+    *,
+    cache_dir: Path,
+    cache_ttl_seconds: int,
+    retries: int,
+    allow_network: bool,
+    telemetry: dict[str, int],
+) -> dict[str, Any]:
     """Attach filterable and explainable fields to a raw candidate."""
     enriched = dict(candidate)
     enriched["complexity_signals"] = _complexity_signals(
@@ -443,13 +1022,56 @@ def enrich_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     maintenance_score = _score_maintenance(enriched)
     popularity_score = _score_popularity(enriched)
     relevance_score, relevance_hits = _score_relevance(enriched)
+    retrieval_context = build_retrieval_context(enriched, entry, enabled_sources)
+    enriched["external_code_evidence"] = _external_retrieval_evidence(
+        enriched,
+        retrieval_context,
+        enabled_sources,
+        cache_dir=cache_dir,
+        cache_ttl_seconds=cache_ttl_seconds,
+        retries=retries,
+        allow_network=allow_network,
+        telemetry=telemetry,
+    )
+    enriched["external_activity_signals"] = (
+        _oss_insight_metrics(
+            enriched,
+            cache_dir=cache_dir,
+            cache_ttl_seconds=cache_ttl_seconds,
+            retries=retries,
+            allow_network=allow_network,
+            telemetry=telemetry,
+        )
+        if "oss_insight" in enabled_sources
+        else {}
+    )
+    enriched["external_credibility_signals"] = (
+        _deps_dev_metrics(
+            enriched,
+            cache_dir=cache_dir,
+            cache_ttl_seconds=cache_ttl_seconds,
+            retries=retries,
+            allow_network=allow_network,
+            telemetry=telemetry,
+        )
+        if "deps_dev" in enabled_sources
+        else {}
+    )
+    code_search_score = _score_code_search(enriched, retrieval_context)
+    activity_score, activity_signals = _score_activity(enriched)
+    credibility_score, credibility_signals = _score_credibility(enriched)
+    adaptation_score, adaptation_hints = _score_adaptation(enriched, retrieval_context)
     beginner_score, setup_difficulty = _score_beginner(enriched)
     overall_score = (
-        recency_score * 0.20
-        + maintenance_score * 0.20
-        + popularity_score * 0.15
-        + beginner_score * 0.15
-        + relevance_score * 0.30
+        recency_score * 0.10
+        + maintenance_score * 0.14
+        + popularity_score * 0.08
+        + beginner_score * 0.10
+        + relevance_score * 0.18
+        + code_search_score * 0.20
+        + activity_score * 0.10
+        + credibility_score * 0.06
+        + adaptation_score * 0.04
     ) * 100.0
     enriched["scores"] = {
         "recency": round(recency_score, 3),
@@ -457,11 +1079,35 @@ def enrich_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         "popularity": round(popularity_score, 3),
         "beginner": round(beginner_score, 3),
         "relevance": round(relevance_score, 3),
+        "code_search": round(code_search_score, 3),
+        "activity": round(activity_score, 3),
+        "credibility": round(credibility_score, 3),
+        "adaptation": round(adaptation_score, 3),
     }
     enriched["overall_score"] = round(overall_score, 2)
     enriched["confidence"] = _candidate_confidence(overall_score)
     enriched["setup_difficulty"] = setup_difficulty
     enriched["relevance_hits"] = relevance_hits
+    enriched["retrieval_sources"] = retrieval_context["retrieval_sources"]
+    enriched["code_evidence"] = {
+        "feature_label": retrieval_context["feature_label"],
+        "symbol_matches": retrieval_context["symbol_matches"],
+        "snippet_matches": retrieval_context["snippet_matches"],
+        "semantic_hits": retrieval_context["semantic_hits"],
+        "external_hits": {
+            key: value
+            for key, value in (enriched.get("external_code_evidence") or {}).items()
+            if value
+        },
+        "queries": {
+            "symbols": retrieval_context["symbol_hints"],
+            "snippets": retrieval_context["snippet_queries"],
+            "semantic": retrieval_context["semantic_queries"],
+        },
+    }
+    enriched["activity_signals"] = activity_signals
+    enriched["credibility_signals"] = credibility_signals
+    enriched["adaptation_hints"] = adaptation_hints
     return enriched
 
 
@@ -484,6 +1130,8 @@ def apply_hard_filters(candidate: dict[str, Any], settings: dict[str, Any]) -> d
         failures.append(_filter_reason("demo_only", "description indicates a demo or showcase project"))
     if float((candidate.get("scores") or {}).get("relevance", 0.0)) < float(settings["min_relevance"]):
         failures.append(_filter_reason("relevance", "query match is too weak"))
+    if candidate.get("retrieval_sources") and float((candidate.get("scores") or {}).get("code_search", 0.0)) < max(0.2, float(settings["min_relevance"]) - 0.05):
+        failures.append(_filter_reason("code_search", "code-level retrieval evidence is too weak"))
     if str(candidate.get("confidence") or "low") not in set(settings["allowed_confidence"]):
         failures.append(_filter_reason("confidence", "candidate confidence is below this mode contract"))
     return {
@@ -790,6 +1438,7 @@ def run_search(
     settings = _contract_for_mode(search_mode, min_score)
     allow_network = bool(settings["allow_network"])
     snapshot = load_github_snapshot(GITHUB_SNAPSHOT_PATH)
+    enabled_sources = {item.strip() for item in sources if item.strip()}
     telemetry = {
         "live_requests": 0,
         "fresh_cache_hits": 0,
@@ -837,17 +1486,23 @@ def run_search(
         ),
     }
 
+    primary_sources = sorted(source for source in enabled_sources if source in PRIMARY_FETCH_SOURCES)
+    evidence_sources = sorted(source for source in enabled_sources if source not in PRIMARY_FETCH_SOURCES)
+
     kept: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
     warnings: list[str] = []
     fetched_count = 0
-    github_enabled = "github" in set(sources)
+    github_enabled = "github" in enabled_sources
+    if not primary_sources:
+        warnings.append("No primary fetch source is enabled. At least one of github, npm, or pypi is required to collect candidates.")
 
     for entry in search_map:
         component = str(entry.get("component") or "").strip()
         purpose = str(entry.get("purpose") or component).strip()
         queries = entry.get("query_variants") or [component]
-        source_types = [source for source in entry.get("source_types", []) if source in handlers and source in sources]
+        entry_sources = {str(source).strip() for source in (entry.get("source_types") or []) if str(source).strip()}
+        source_types = [source for source in primary_sources if source in entry_sources and source in handlers]
         for query in queries:
             for source_type in source_types:
                 try:
@@ -859,7 +1514,16 @@ def run_search(
                     continue
                 for item in fetched:
                     fetched_count += 1
-                    candidate = enrich_candidate(item)
+                    candidate = enrich_candidate(
+                        item,
+                        entry,
+                        enabled_sources & entry_sources,
+                        cache_dir=cache_dir,
+                        cache_ttl_seconds=cache_ttl_seconds,
+                        retries=retries,
+                        allow_network=allow_network,
+                        telemetry=telemetry,
+                    )
                     hard_filter = apply_hard_filters(candidate, settings)
                     candidate["filter_result"] = hard_filter
                     if not hard_filter["passed"]:
@@ -920,6 +1584,26 @@ def run_search(
             "min_relevance": settings["min_relevance"],
             "min_score": settings["min_score"],
             "allowed_confidence": sorted(settings["allowed_confidence"]),
+            "primary_sources": primary_sources,
+            "evidence_sources": evidence_sources,
+        },
+        "engine": {
+            "mode": "code_retrieval_reconstruction",
+            "pipeline": [
+                "feature_extraction",
+                "code_retrieval",
+                "semantic_rerank",
+                "activity_filter",
+                "credibility_filter",
+                "project_adaptation",
+            ],
+            "adapter_support": {
+                "sourcegraph": bool(os.getenv("SOURCEGRAPH_TOKEN", "").strip()),
+                "grep_app": bool(os.getenv("GREP_APP_ENDPOINT", "").strip()),
+                "searchcode": True,
+                "oss_insight": True,
+                "deps_dev": True,
+            },
         },
         "snapshot": {
             "path": str(GITHUB_SNAPSHOT_PATH),
@@ -946,7 +1630,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Fetch OSS candidates into pipeline state.")
     parser.add_argument("--state-in", required=True, help="Input state JSON path")
     parser.add_argument("--state-out", required=True, help="Output state JSON path")
-    parser.add_argument("--sources", default="npm,pypi,github", help="Comma-separated enabled sources")
+    parser.add_argument(
+        "--sources",
+        default="github,npm,pypi,sourcegraph,grep_app,searchcode,code_rag,oss_insight,deps_dev,continue,codeium",
+        help="Comma-separated enabled sources",
+    )
     parser.add_argument("--limit-per-source", type=int, default=5, help="Maximum results per query per source")
     parser.add_argument("--dry-run", action="store_true", help="Only derive and print search_map")
     parser.add_argument("--cache-dir", default=".cache", help="HTTP cache directory")

@@ -1,16 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "SaaS OSS Accelerator Pipeline State",
+  "title": "Nimdalcraft Retrieval Pipeline State",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "input",
     "spec",
     "architecture",
+    "feature_map",
     "search_map",
     "raw_candidates",
+    "code_candidates",
     "curated_choices",
     "validation_result",
+    "reconstruction_plan",
     "starter_plan",
     "execution",
     "reports"
@@ -27,6 +30,13 @@
     "architecture": {
       "type": "object",
       "additionalProperties": true
+    },
+    "feature_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
     },
     "search_map": {
       "type": "array",
@@ -57,7 +67,15 @@
                 "npm",
                 "pypi",
                 "boilerplate",
-                "awesome"
+                "awesome",
+                "sourcegraph",
+                "grep_app",
+                "searchcode",
+                "code_rag",
+                "oss_insight",
+                "deps_dev",
+                "continue",
+                "codeium"
               ]
             }
           },
@@ -83,6 +101,13 @@
         "additionalProperties": true
       }
     },
+    "code_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
     "curated_choices": {
       "type": "array",
       "items": {
@@ -91,6 +116,10 @@
       }
     },
     "validation_result": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "reconstruction_plan": {
       "type": "object",
       "additionalProperties": true
     },
