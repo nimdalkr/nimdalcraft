@@ -1,0 +1,37 @@
+name: Retrieval adapter or scoring signal
+description: Propose a new source, adapter, or credibility signal.
+title: "[Adapter]: "
+labels: ["adapter", "triage"]
+body:
+  - type: textarea
+    id: source
+    attributes:
+      label: Source or signal
+      description: What source, API, dataset, or signal should Nimdalcraft use?
+    validations:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: Why it helps
+      description: Explain how this improves code retrieval, ranking, validation, or reconstruction.
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Search mode impact
+      options:
+        - degraded mode
+        - strict mode
+        - both
+        - unsure
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Implementation notes
+      description: Mention auth, rate limits, deterministic fallback behavior, or known API constraints.
+    validations:
+      required: false
