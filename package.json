@@ -2,8 +2,21 @@
   "name": "nimdalcraft",
   "version": "0.1.0",
   "description": "Turn ideas into feature-level OSS code retrieval and reconstruction plans.",
+  "homepage": "https://github.com/nimdalkr/nimdalcraft#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nimdalkr/nimdalcraft.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nimdalkr/nimdalcraft/issues"
+  },
   "bin": {
     "nimdalcraft": "bin/nimdalcraft.js"
+  },
+  "scripts": {
+    "doctor": "node bin/nimdalcraft.js doctor",
+    "validate": "node bin/nimdalcraft.js validate --all",
+    "smoke": "node bin/nimdalcraft.js run \"Simple internal SaaS\" --force-starter local-test-starter --output-mode runnable --search-mode degraded"
   },
   "files": [
     "bin",
@@ -27,7 +40,7 @@
     "code-search",
     "rag"
   ],
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": ">=18"
   }

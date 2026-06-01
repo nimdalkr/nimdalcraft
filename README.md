@@ -1,5 +1,8 @@
 # Nimdalcraft
 
+[![Validate Starters](https://github.com/nimdalkr/nimdalcraft/actions/workflows/validate-starters.yml/badge.svg)](https://github.com/nimdalkr/nimdalcraft/actions/workflows/validate-starters.yml)
+[![Build GitHub Snapshot](https://github.com/nimdalkr/nimdalcraft/actions/workflows/build-github-snapshot.yml/badge.svg)](https://github.com/nimdalkr/nimdalcraft/actions/workflows/build-github-snapshot.yml)
+
 `nimdalcraft` is a prompt-infrastructure skill and CLI for vibe coding with real OSS code.
 
 It turns:
@@ -7,6 +10,17 @@ It turns:
 `idea -> feature extraction -> code retrieval -> semantic rerank -> activity and credibility filtering -> reconstruction plan -> runnable or handoff output`
 
 The current implementation lives in [skills/nimdalcraft](./skills/nimdalcraft).
+
+## Project Status
+
+Nimdalcraft is an early public OSS project maintained by [@nimdalkr](https://github.com/nimdalkr). The current focus is making code retrieval and reconstruction reliable enough for agent-assisted development, especially when live search is unavailable or rate-limited.
+
+The repository is maintained with:
+
+- Daily GitHub Actions validation for trusted starters
+- Daily GitHub search snapshot refreshes for deterministic degraded mode
+- A narrow contribution surface for retrieval adapters, credibility signals, and starter checks
+- Public issue tracking for contributor questions and adapter requests
 
 ## What It Does
 
@@ -54,6 +68,9 @@ Evidence and rerank sources modeled by the pipeline:
 ```text
 .github/workflows/validate-starters.yml      Daily starter validation
 .github/workflows/build-github-snapshot.yml  Daily GitHub snapshot refresh
+.github/ISSUE_TEMPLATE/                     Bug reports and adapter proposals
+CONTRIBUTING.md                             Contributor workflow
+SECURITY.md                                 Security reporting policy
 skills/nimdalcraft/                          Main skill package
   SKILL.md                                   Skill instructions
   run.py                                     Main CLI entrypoint
@@ -160,6 +177,17 @@ Built-in public adapters:
 - `OSS Insight` via `https://api.ossinsight.io/v1`
 - `deps.dev` via `https://api.deps.dev/v3`
 
+## Contributing
+
+Contributions are welcome around retrieval adapters, credibility scoring, starter validation, and documentation. Start with [CONTRIBUTING.md](./CONTRIBUTING.md) and keep changes focused enough to validate with the CLI checks.
+
+Useful public contribution surfaces:
+
+- Add or improve a retrieval adapter in `skills/nimdalcraft/scripts/source_search.py`
+- Improve starter reliability checks in `skills/nimdalcraft/scripts/validate_starters.py`
+- Extend trusted starter metadata in `skills/nimdalcraft/assets/trusted-starters.json`
+- Improve generated handoff files for Codex, Claude Code, Cursor, and human maintainers
+
 ## Fast Test Guide
 
 Validate the code:
@@ -192,3 +220,10 @@ Expected:
 - [skills/nimdalcraft/run.py](./skills/nimdalcraft/run.py)
 - [skills/nimdalcraft/scripts/source_search.py](./skills/nimdalcraft/scripts/source_search.py)
 - [skills/nimdalcraft/scripts/validate_starters.py](./skills/nimdalcraft/scripts/validate_starters.py)
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [SECURITY.md](./SECURITY.md)
+- [CHANGELOG.md](./CHANGELOG.md)
+
+## License
+
+Nimdalcraft is available under the [MIT License](./LICENSE).
