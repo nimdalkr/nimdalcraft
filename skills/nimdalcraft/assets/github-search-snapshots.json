@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-23T03:42:34+00:00",
+  "generated_at": "2026-07-24T03:41:12+00:00",
   "source": "github-search-api",
   "query_count": 21,
   "item_count": 168,
   "queries": {
     "Next.js SaaS starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 854894542,
@@ -22,9 +22,9 @@
             "stripe"
           ],
           "pushed_at": "2025-12-11T22:35:37Z",
-          "updated_at": "2026-07-22T21:35:11Z",
-          "stargazers_count": 15978,
-          "forks_count": 2683,
+          "updated_at": "2026-07-23T23:44:49Z",
+          "stargazers_count": 15983,
+          "forks_count": 2682,
           "open_issues_count": 51,
           "license": {
             "spdx_id": "MIT"
@@ -61,8 +61,8 @@
             "typescript"
           ],
           "pushed_at": "2026-07-02T23:48:01Z",
-          "updated_at": "2026-07-22T17:07:43Z",
-          "stargazers_count": 7303,
+          "updated_at": "2026-07-23T18:24:04Z",
+          "stargazers_count": 7305,
           "forks_count": 1332,
           "open_issues_count": 5,
           "license": {
@@ -97,9 +97,9 @@
             "typescript"
           ],
           "pushed_at": "2026-07-20T08:15:05Z",
-          "updated_at": "2026-07-22T04:04:30Z",
-          "stargazers_count": 4871,
-          "forks_count": 1226,
+          "updated_at": "2026-07-23T15:37:26Z",
+          "stargazers_count": 4872,
+          "forks_count": 1225,
           "open_issues_count": 44,
           "license": {
             "spdx_id": "Apache-2.0"
@@ -131,9 +131,9 @@
             "userrole"
           ],
           "pushed_at": "2024-08-16T14:36:10Z",
-          "updated_at": "2026-07-22T20:33:56Z",
+          "updated_at": "2026-07-23T17:31:12Z",
           "stargazers_count": 2999,
-          "forks_count": 627,
+          "forks_count": 626,
           "open_issues_count": 24,
           "license": {
             "spdx_id": "MIT"
@@ -165,7 +165,7 @@
           "pushed_at": "2026-03-23T11:51:30Z",
           "updated_at": "2026-07-21T05:46:52Z",
           "stargazers_count": 1827,
-          "forks_count": 228,
+          "forks_count": 227,
           "open_issues_count": 35,
           "license": {
             "spdx_id": "NOASSERTION"
@@ -202,8 +202,8 @@
             "vercel"
           ],
           "pushed_at": "2026-07-20T19:52:15Z",
-          "updated_at": "2026-07-18T15:04:25Z",
-          "stargazers_count": 1681,
+          "updated_at": "2026-07-23T21:25:06Z",
+          "stargazers_count": 1682,
           "forks_count": 395,
           "open_issues_count": 44,
           "license": {
@@ -241,8 +241,8 @@
             "template"
           ],
           "pushed_at": "2025-10-04T13:33:55Z",
-          "updated_at": "2026-07-22T16:48:34Z",
-          "stargazers_count": 1557,
+          "updated_at": "2026-07-23T08:47:06Z",
+          "stargazers_count": 1558,
           "forks_count": 277,
           "open_issues_count": 5,
           "license": {
@@ -279,8 +279,8 @@
             "vercel"
           ],
           "pushed_at": "2026-05-30T12:31:52Z",
-          "updated_at": "2026-07-22T19:05:04Z",
-          "stargazers_count": 1377,
+          "updated_at": "2026-07-23T15:36:45Z",
+          "stargazers_count": 1378,
           "forks_count": 241,
           "open_issues_count": 20,
           "license": {
@@ -290,7 +290,7 @@
       ]
     },
     "Next.js starter template auth dashboard": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 1137306550,
@@ -311,8 +311,8 @@
             "typescript"
           ],
           "pushed_at": "2026-01-19T07:47:44Z",
-          "updated_at": "2026-06-25T17:37:37Z",
-          "stargazers_count": 65,
+          "updated_at": "2026-07-23T23:54:04Z",
+          "stargazers_count": 64,
           "forks_count": 12,
           "open_issues_count": 0,
           "license": {
@@ -515,7 +515,7 @@
       ]
     },
     "React admin dashboard starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 713376647,
@@ -548,9 +548,9 @@
             "typescript"
           ],
           "pushed_at": "2026-07-18T14:21:09Z",
-          "updated_at": "2026-07-22T22:30:54Z",
-          "stargazers_count": 6707,
-          "forks_count": 1564,
+          "updated_at": "2026-07-24T02:51:54Z",
+          "stargazers_count": 6716,
+          "forks_count": 1565,
           "open_issues_count": 5,
           "license": {
             "spdx_id": "MIT"
@@ -746,7 +746,7 @@
       ]
     },
     "FastAPI starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 748370589,
@@ -773,8 +773,8 @@
             "vercel"
           ],
           "pushed_at": "2026-03-18T09:40:05Z",
-          "updated_at": "2026-07-22T04:19:26Z",
-          "stargazers_count": 1946,
+          "updated_at": "2026-07-23T15:40:59Z",
+          "stargazers_count": 1947,
           "forks_count": 268,
           "open_issues_count": 28,
           "license": {
@@ -809,8 +809,8 @@
             "typescript"
           ],
           "pushed_at": "2025-10-29T08:07:22Z",
-          "updated_at": "2026-07-10T17:18:27Z",
-          "stargazers_count": 520,
+          "updated_at": "2026-07-23T15:36:25Z",
+          "stargazers_count": 521,
           "forks_count": 52,
           "open_issues_count": 28,
           "license": {
@@ -839,11 +839,11 @@
             "terraform",
             "typescript"
           ],
-          "pushed_at": "2026-07-20T12:19:15Z",
-          "updated_at": "2026-07-20T12:21:21Z",
-          "stargazers_count": 217,
+          "pushed_at": "2026-07-23T04:56:41Z",
+          "updated_at": "2026-07-23T17:48:27Z",
+          "stargazers_count": 218,
           "forks_count": 33,
-          "open_issues_count": 1,
+          "open_issues_count": 0,
           "license": {
             "spdx_id": "MIT"
           }
@@ -970,7 +970,7 @@
       ]
     },
     "FastAPI boilerplate": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 249049296,
@@ -996,9 +996,9 @@
             "typescript"
           ],
           "pushed_at": "2023-10-06T23:46:17Z",
-          "updated_at": "2026-07-22T21:35:31Z",
+          "updated_at": "2026-07-23T15:35:21Z",
           "stargazers_count": 2584,
-          "forks_count": 371,
+          "forks_count": 370,
           "open_issues_count": 43,
           "license": {
             "spdx_id": "MIT"
@@ -1030,8 +1030,8 @@
             "uvicorn"
           ],
           "pushed_at": "2026-07-02T01:31:41Z",
-          "updated_at": "2026-07-22T11:54:53Z",
-          "stargazers_count": 2014,
+          "updated_at": "2026-07-24T01:43:43Z",
+          "stargazers_count": 2018,
           "forks_count": 303,
           "open_issues_count": 7,
           "license": {
@@ -1061,8 +1061,8 @@
             "tortoise-orm"
           ],
           "pushed_at": "2024-03-01T21:16:58Z",
-          "updated_at": "2026-07-17T10:58:12Z",
-          "stargazers_count": 1911,
+          "updated_at": "2026-07-23T15:35:36Z",
+          "stargazers_count": 1912,
           "forks_count": 103,
           "open_issues_count": 22,
           "license": {
@@ -1207,8 +1207,8 @@
             "python"
           ],
           "pushed_at": "2024-11-03T12:08:42Z",
-          "updated_at": "2026-07-21T14:41:03Z",
-          "stargazers_count": 556,
+          "updated_at": "2026-07-23T11:38:03Z",
+          "stargazers_count": 558,
           "forks_count": 117,
           "open_issues_count": 0,
           "license": {
@@ -1218,7 +1218,7 @@
       ]
     },
     "FastAPI SaaS template": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 366633671,
@@ -1241,8 +1241,8 @@
             "uvicorn"
           ],
           "pushed_at": "2026-07-12T12:14:47Z",
-          "updated_at": "2026-07-13T05:35:54Z",
-          "stargazers_count": 255,
+          "updated_at": "2026-07-24T02:25:18Z",
+          "stargazers_count": 256,
           "forks_count": 41,
           "open_issues_count": 2,
           "license": {
@@ -1425,8 +1425,8 @@
             "telegram-bot",
             "templates"
           ],
-          "pushed_at": "2026-07-09T11:31:04Z",
-          "updated_at": "2026-07-21T17:28:16Z",
+          "pushed_at": "2026-07-23T09:57:03Z",
+          "updated_at": "2026-07-23T10:26:31Z",
           "stargazers_count": 11,
           "forks_count": 3,
           "open_issues_count": 0,
@@ -1437,7 +1437,7 @@
       ]
     },
     "PostgreSQL ORM starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 846384296,
@@ -1469,9 +1469,9 @@
             "vite-plus",
             "viteplus"
           ],
-          "pushed_at": "2026-07-22T22:55:31Z",
-          "updated_at": "2026-07-22T22:55:38Z",
-          "stargazers_count": 1261,
+          "pushed_at": "2026-07-23T20:17:40Z",
+          "updated_at": "2026-07-23T23:19:21Z",
+          "stargazers_count": 1264,
           "forks_count": 79,
           "open_issues_count": 3,
           "license": {
@@ -1494,8 +1494,8 @@
             "typescript"
           ],
           "pushed_at": "2026-07-12T03:35:04Z",
-          "updated_at": "2026-07-22T21:27:57Z",
-          "stargazers_count": 364,
+          "updated_at": "2026-07-23T15:44:14Z",
+          "stargazers_count": 365,
           "forks_count": 55,
           "open_issues_count": 6,
           "license": {
@@ -1569,8 +1569,8 @@
             "template"
           ],
           "pushed_at": "2025-06-12T04:02:42Z",
-          "updated_at": "2026-07-10T17:31:06Z",
-          "stargazers_count": 76,
+          "updated_at": "2026-07-23T23:46:30Z",
+          "stargazers_count": 75,
           "forks_count": 5,
           "open_issues_count": 1,
           "license": {
@@ -1674,7 +1674,7 @@
       ]
     },
     "Prisma starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 69668139,
@@ -1741,9 +1741,9 @@
             "userrole"
           ],
           "pushed_at": "2024-08-16T14:36:10Z",
-          "updated_at": "2026-07-22T20:33:56Z",
+          "updated_at": "2026-07-23T17:31:12Z",
           "stargazers_count": 2999,
-          "forks_count": 627,
+          "forks_count": 626,
           "open_issues_count": 24,
           "license": {
             "spdx_id": "MIT"
@@ -1845,8 +1845,8 @@
             "web"
           ],
           "pushed_at": "2026-07-18T08:05:43Z",
-          "updated_at": "2026-07-21T14:14:18Z",
-          "stargazers_count": 1742,
+          "updated_at": "2026-07-23T22:26:01Z",
+          "stargazers_count": 1744,
           "forks_count": 163,
           "open_issues_count": 34,
           "license": {
@@ -1883,8 +1883,8 @@
             "vercel"
           ],
           "pushed_at": "2026-05-30T12:31:52Z",
-          "updated_at": "2026-07-22T19:05:04Z",
-          "stargazers_count": 1377,
+          "updated_at": "2026-07-23T15:36:45Z",
+          "stargazers_count": 1378,
           "forks_count": 241,
           "open_issues_count": 20,
           "license": {
@@ -1922,8 +1922,8 @@
             "zod"
           ],
           "pushed_at": "2025-12-18T12:25:17Z",
-          "updated_at": "2026-07-21T20:03:09Z",
-          "stargazers_count": 1323,
+          "updated_at": "2026-07-23T15:39:22Z",
+          "stargazers_count": 1324,
           "forks_count": 136,
           "open_issues_count": 17,
           "license": {
@@ -1972,7 +1972,7 @@
       ]
     },
     "SQLModel starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 435674776,
@@ -2205,7 +2205,7 @@
       ]
     },
     "NextAuth starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 471590862,
@@ -2274,8 +2274,8 @@
             "vercel"
           ],
           "pushed_at": "2023-08-17T06:23:32Z",
-          "updated_at": "2026-07-08T19:09:05Z",
-          "stargazers_count": 130,
+          "updated_at": "2026-07-23T15:39:59Z",
+          "stargazers_count": 131,
           "forks_count": 35,
           "open_issues_count": 0,
           "license": {
@@ -2394,7 +2394,7 @@
       ]
     },
     "better-auth starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 18840003,
@@ -2456,8 +2456,8 @@
             "trpc",
             "vite"
           ],
-          "pushed_at": "2026-07-22T11:59:29Z",
-          "updated_at": "2026-07-22T21:36:26Z",
+          "pushed_at": "2026-07-23T18:52:10Z",
+          "updated_at": "2026-07-23T15:37:35Z",
           "stargazers_count": 6084,
           "forks_count": 566,
           "open_issues_count": 57,
@@ -2496,8 +2496,8 @@
             "web"
           ],
           "pushed_at": "2026-07-18T08:05:43Z",
-          "updated_at": "2026-07-21T14:14:18Z",
-          "stargazers_count": 1742,
+          "updated_at": "2026-07-23T22:26:01Z",
+          "stargazers_count": 1744,
           "forks_count": 163,
           "open_issues_count": 34,
           "license": {
@@ -2535,8 +2535,8 @@
             "template"
           ],
           "pushed_at": "2025-10-04T13:33:55Z",
-          "updated_at": "2026-07-22T16:48:34Z",
-          "stargazers_count": 1557,
+          "updated_at": "2026-07-23T08:47:06Z",
+          "stargazers_count": 1558,
           "forks_count": 277,
           "open_issues_count": 5,
           "license": {
@@ -2573,9 +2573,9 @@
             "vite-plus",
             "viteplus"
           ],
-          "pushed_at": "2026-07-22T22:55:31Z",
-          "updated_at": "2026-07-22T22:55:38Z",
-          "stargazers_count": 1261,
+          "pushed_at": "2026-07-23T20:17:40Z",
+          "updated_at": "2026-07-23T23:19:21Z",
+          "stargazers_count": 1264,
           "forks_count": 79,
           "open_issues_count": 3,
           "license": {
@@ -2612,8 +2612,8 @@
             "typescript"
           ],
           "pushed_at": "2026-04-12T02:53:19Z",
-          "updated_at": "2026-07-23T00:50:12Z",
-          "stargazers_count": 495,
+          "updated_at": "2026-07-23T22:29:32Z",
+          "stargazers_count": 496,
           "forks_count": 58,
           "open_issues_count": 5,
           "license": {
@@ -2646,8 +2646,8 @@
             "vercel"
           ],
           "pushed_at": "2026-07-22T14:24:46Z",
-          "updated_at": "2026-07-10T22:58:23Z",
-          "stargazers_count": 430,
+          "updated_at": "2026-07-23T15:40:20Z",
+          "stargazers_count": 431,
           "forks_count": 105,
           "open_issues_count": 3,
           "license": {
@@ -2680,7 +2680,7 @@
       ]
     },
     "FastAPI auth starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 728391973,
@@ -2890,7 +2890,7 @@
       ]
     },
     "S3 upload starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 367791811,
@@ -3073,7 +3073,7 @@
       ]
     },
     "uploadthing starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 644861240,
@@ -3106,8 +3106,8 @@
             "zod"
           ],
           "pushed_at": "2025-12-18T12:25:17Z",
-          "updated_at": "2026-07-21T20:03:09Z",
-          "stargazers_count": 1323,
+          "updated_at": "2026-07-23T15:39:22Z",
+          "stargazers_count": 1324,
           "forks_count": 136,
           "open_issues_count": 17,
           "license": {
@@ -3270,7 +3270,7 @@
       ]
     },
     "FastAPI file upload storage": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 603464731,
@@ -3488,7 +3488,7 @@
       ]
     },
     "Celery starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 624241774,
@@ -3712,7 +3712,7 @@
       ]
     },
     "RQ starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 220150195,
@@ -3887,7 +3887,7 @@
       ]
     },
     "BullMQ starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 797391133,
@@ -4011,27 +4011,6 @@
           }
         },
         {
-          "id": 970284322,
-          "name": "NestBoilerplate",
-          "full_name": "SohailRaoufi/NestBoilerplate",
-          "html_url": "https://github.com/SohailRaoufi/NestBoilerplate",
-          "description": "🚀 NestJS Boilerplate — Scalable, Modular, Production-Ready Starter A feature-rich NestJS starter with MikroORM, PostgreSQL, Redis, BullMQ, JWT auth, Scalar docs, and Docker support. Built for fast, maintainable backend development. ⚠️ Actively maintained — new features coming soon!",
-          "archived": false,
-          "disabled": false,
-          "topics": [
-            "authentication",
-            "nestjs"
-          ],
-          "pushed_at": "2026-02-27T15:45:40Z",
-          "updated_at": "2026-04-16T07:23:30Z",
-          "stargazers_count": 5,
-          "forks_count": 0,
-          "open_issues_count": 0,
-          "license": {
-            "spdx_id": ""
-          }
-        },
-        {
           "id": 1214494458,
           "name": "nestjs-boilerplate",
           "full_name": "bannaarr01/nestjs-boilerplate",
@@ -4062,12 +4041,33 @@
             "typescript"
           ],
           "pushed_at": "2026-04-18T16:52:01Z",
-          "updated_at": "2026-04-24T20:17:17Z",
-          "stargazers_count": 4,
+          "updated_at": "2026-07-23T14:38:59Z",
+          "stargazers_count": 5,
           "forks_count": 0,
           "open_issues_count": 0,
           "license": {
             "spdx_id": "MIT"
+          }
+        },
+        {
+          "id": 970284322,
+          "name": "NestBoilerplate",
+          "full_name": "SohailRaoufi/NestBoilerplate",
+          "html_url": "https://github.com/SohailRaoufi/NestBoilerplate",
+          "description": "🚀 NestJS Boilerplate — Scalable, Modular, Production-Ready Starter A feature-rich NestJS starter with MikroORM, PostgreSQL, Redis, BullMQ, JWT auth, Scalar docs, and Docker support. Built for fast, maintainable backend development. ⚠️ Actively maintained — new features coming soon!",
+          "archived": false,
+          "disabled": false,
+          "topics": [
+            "authentication",
+            "nestjs"
+          ],
+          "pushed_at": "2026-02-27T15:45:40Z",
+          "updated_at": "2026-04-16T07:23:30Z",
+          "stargazers_count": 5,
+          "forks_count": 0,
+          "open_issues_count": 0,
+          "license": {
+            "spdx_id": ""
           }
         },
         {
@@ -4135,7 +4135,7 @@
       ]
     },
     "OpenAI SDK starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 1070467968,
@@ -4153,8 +4153,8 @@
             "typescript"
           ],
           "pushed_at": "2026-03-27T21:05:29Z",
-          "updated_at": "2026-07-22T14:05:05Z",
-          "stargazers_count": 641,
+          "updated_at": "2026-07-24T00:57:11Z",
+          "stargazers_count": 642,
           "forks_count": 297,
           "open_issues_count": 10,
           "license": {
@@ -4216,6 +4216,24 @@
           }
         },
         {
+          "id": 1266683229,
+          "name": "agent-stack-starter-kits",
+          "full_name": "circlefin/agent-stack-starter-kits",
+          "html_url": "https://github.com/circlefin/agent-stack-starter-kits",
+          "description": "Runnable examples integrating Circle Agent Stack with LangChain, Claude Agent SDK, OpenAI Agents SDK, Vercel AI SDK and Google ADK.",
+          "archived": false,
+          "disabled": false,
+          "topics": [],
+          "pushed_at": "2026-07-07T21:37:55Z",
+          "updated_at": "2026-07-23T21:11:49Z",
+          "stargazers_count": 21,
+          "forks_count": 8,
+          "open_issues_count": 1,
+          "license": {
+            "spdx_id": "Apache-2.0"
+          }
+        },
+        {
           "id": 1204448812,
           "name": "bolt-python-starter-agent",
           "full_name": "slack-samples/bolt-python-starter-agent",
@@ -4231,24 +4249,6 @@
           "open_issues_count": 5,
           "license": {
             "spdx_id": "MIT"
-          }
-        },
-        {
-          "id": 1266683229,
-          "name": "agent-stack-starter-kits",
-          "full_name": "circlefin/agent-stack-starter-kits",
-          "html_url": "https://github.com/circlefin/agent-stack-starter-kits",
-          "description": "Runnable examples integrating Circle Agent Stack with LangChain, Claude Agent SDK, OpenAI Agents SDK, Vercel AI SDK and Google ADK.",
-          "archived": false,
-          "disabled": false,
-          "topics": [],
-          "pushed_at": "2026-07-07T21:37:55Z",
-          "updated_at": "2026-07-19T20:18:31Z",
-          "stargazers_count": 20,
-          "forks_count": 8,
-          "open_issues_count": 1,
-          "license": {
-            "spdx_id": "Apache-2.0"
           }
         },
         {
@@ -4278,11 +4278,11 @@
           "archived": false,
           "disabled": false,
           "topics": [],
-          "pushed_at": "2026-07-22T18:39:06Z",
-          "updated_at": "2026-07-22T18:41:17Z",
+          "pushed_at": "2026-07-23T12:59:34Z",
+          "updated_at": "2026-07-23T13:22:55Z",
           "stargazers_count": 11,
           "forks_count": 1,
-          "open_issues_count": 3,
+          "open_issues_count": 7,
           "license": {
             "spdx_id": "MIT"
           }
@@ -4290,7 +4290,7 @@
       ]
     },
     "LangChain starter": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 672095858,
@@ -4302,8 +4302,8 @@
           "disabled": false,
           "topics": [],
           "pushed_at": "2026-07-15T06:55:32Z",
-          "updated_at": "2026-07-22T20:57:36Z",
-          "stargazers_count": 2508,
+          "updated_at": "2026-07-23T15:39:50Z",
+          "stargazers_count": 2509,
           "forks_count": 557,
           "open_issues_count": 26,
           "license": {
@@ -4335,8 +4335,8 @@
             "vercel"
           ],
           "pushed_at": "2026-03-18T09:40:05Z",
-          "updated_at": "2026-07-22T04:19:26Z",
-          "stargazers_count": 1946,
+          "updated_at": "2026-07-23T15:40:59Z",
+          "stargazers_count": 1947,
           "forks_count": 268,
           "open_issues_count": 28,
           "license": {
@@ -4362,7 +4362,7 @@
           "pushed_at": "2023-07-27T15:01:48Z",
           "updated_at": "2026-07-05T03:07:02Z",
           "stargazers_count": 477,
-          "forks_count": 560,
+          "forks_count": 559,
           "open_issues_count": 4,
           "license": {
             "spdx_id": ""
@@ -4488,7 +4488,7 @@
       ]
     },
     "FastAPI OpenAI template": {
-      "fetched_at": "2026-07-23T03:42:34+00:00",
+      "fetched_at": "2026-07-24T03:41:12+00:00",
       "items": [
         {
           "id": 748370589,
@@ -4515,8 +4515,8 @@
             "vercel"
           ],
           "pushed_at": "2026-03-18T09:40:05Z",
-          "updated_at": "2026-07-22T04:19:26Z",
-          "stargazers_count": 1946,
+          "updated_at": "2026-07-23T15:40:59Z",
+          "stargazers_count": 1947,
           "forks_count": 268,
           "open_issues_count": 28,
           "license": {
@@ -4592,8 +4592,8 @@
             "windows"
           ],
           "pushed_at": "2026-07-22T11:01:58Z",
-          "updated_at": "2026-07-23T03:12:22Z",
-          "stargazers_count": 644,
+          "updated_at": "2026-07-23T15:17:20Z",
+          "stargazers_count": 645,
           "forks_count": 95,
           "open_issues_count": 4,
           "license": {
@@ -4618,7 +4618,7 @@
             "python",
             "ubuntu"
           ],
-          "pushed_at": "2026-07-20T09:53:55Z",
+          "pushed_at": "2026-07-24T02:59:05Z",
           "updated_at": "2026-07-12T16:53:34Z",
           "stargazers_count": 119,
           "forks_count": 11,
@@ -4687,8 +4687,8 @@
             "markdown-reader",
             "pdf-translation"
           ],
-          "pushed_at": "2026-07-22T07:12:42Z",
-          "updated_at": "2026-07-22T07:13:30Z",
+          "pushed_at": "2026-07-23T09:32:37Z",
+          "updated_at": "2026-07-23T09:32:40Z",
           "stargazers_count": 25,
           "forks_count": 46,
           "open_issues_count": 3,
@@ -4726,7 +4726,7 @@
             "unraid-template",
             "vector-database"
           ],
-          "pushed_at": "2026-07-22T12:15:26Z",
+          "pushed_at": "2026-07-23T12:13:49Z",
           "updated_at": "2026-07-01T22:08:19Z",
           "stargazers_count": 16,
           "forks_count": 4,
